@@ -7,6 +7,8 @@ from Box2D.b2 import (world, edgeShape, polygonShape, circleShape, staticBody, d
 from klask_render import render_game_board
 from klask_constants import *
 
+# TODO: scale up sizes for more accurate simulation
+
 # --- constants ---
 # Box2D deals with meters, but we want to display pixels,
 # so define a conversion factor:
@@ -48,7 +50,7 @@ ground_fixture = ground.CreatePolygonFixture(box=(KG_BOARD_WIDTH, KG_BOARD_HEIGH
 
 # --- dynamic bodies ---
 
-ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, KG_BOARD_HEIGHT / 2))
+ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 3))
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS, density=1, friction=0.3)
 
 # Create joint
@@ -92,6 +94,11 @@ while running:
             # The user closed the window or pressed escape
             running = False
 
+    # Apply forces
+    world.ClearForces()
+    ball_body.ApplyForce(force=(0.0015, 0), point=ball.shape.pos, wake=True)
+
+    # Render the world
     screen.blit(game_board, (0,0))
 
     # Draw the world
