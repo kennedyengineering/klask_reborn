@@ -66,6 +66,8 @@ circleShape.draw = my_draw_circle
 
 # --- main game loop ---
 
+game_board = render_game_board(PPM)
+
 running = True
 while running:
     # Check the event queue
@@ -80,7 +82,7 @@ while running:
         for fixture in body.fixtures:
             fixture.shape.draw(body, fixture)
 
-    render_game_board(PPM, screen)
+    screen.blit(game_board, (0,0))
 
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)

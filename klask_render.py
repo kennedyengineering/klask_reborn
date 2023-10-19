@@ -7,9 +7,9 @@ from klask_constants import *
 
 # TODO: render_game_board() only once, then keep using it
 
-def render_game_board(pixels_per_meter, surface):
-    # Get surface dimensions
-    surface_width, surface_height = surface.get_size()
+def render_game_board(pixels_per_meter):
+    # Create a new surface
+    surface = pygame.Surface((KG_BOARD_WIDTH * pixels_per_meter, KG_BOARD_HEIGHT * pixels_per_meter), 0, 32)
 
     # Render Game Board
     pygame.draw.rect(surface, KG_BOARD_COLOR, pygame.Rect(0, 0, KG_BOARD_WIDTH * pixels_per_meter, KG_BOARD_HEIGHT * pixels_per_meter))
@@ -39,7 +39,8 @@ def render_game_board(pixels_per_meter, surface):
     surface.blit(logo_left, (((KG_BOARD_WIDTH / 3) - KG_BOARD_LOGO_HEIGHT) * pixels_per_meter, ((KG_BOARD_HEIGHT / 2) - (KG_BOARD_LOGO_WIDTH / 2)) * pixels_per_meter))
     surface.blit(logo_right, ((2 * (KG_BOARD_WIDTH / 3)) * pixels_per_meter, ((KG_BOARD_HEIGHT / 2) - (KG_BOARD_LOGO_WIDTH / 2)) * pixels_per_meter))
 
-
+    # Return surface
+    return surface
 
 
 
