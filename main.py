@@ -1,10 +1,11 @@
 import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE)
 
-from klask_render import render_game_board
-
 import Box2D
 from Box2D.b2 import (world, polygonShape, circleShape, staticBody, dynamicBody)
+
+from klask_render import render_game_board
+from klask_constants import *
 
 # --- constants ---
 # Box2D deals with meters, but we want to display pixels,
@@ -13,7 +14,7 @@ from Box2D.b2 import (world, polygonShape, circleShape, staticBody, dynamicBody)
 PPM = 2000
 TARGET_FPS = 60
 TIME_STEP = 1.0 / TARGET_FPS
-SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 1000
+SCREEN_WIDTH, SCREEN_HEIGHT = KG_BOARD_WIDTH * PPM, KG_BOARD_HEIGHT * PPM
 
 # --- pygame setup ---
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -24,44 +25,52 @@ clock = pygame.time.Clock()
 # Create the world
 world = world(gravity=(0, -9.8), doSleep=True)
 
-# And a static body to hold the ground shape
-# ground_body = world.CreateStaticBody(
-#     position=(0, 0),
-#     shapes=polygonShape(box=(50, 1)),
-# )
+# --- static bodies ---
+wall_bottom = world.CreateStaticBody(
+    position=(0, 0),
+    shapes=polygonShape(box=(KG_BOARD_WIDTH, 0))
+)
+wall_left = world.CreateStaticBody(
+    position=(0, 0),
+    shapes=polygonShape(box=(0, KG_BOARD_HEIGHT))
+)
+wall_right = world.CreateStaticBody(
+    position=(KG_BOARD_WIDTH, 0),
+    shapes=polygonShape(box=(0, KG_BOARD_HEIGHT))
+)
+wall_top = world.CreateStaticBody(
+    position=(0, KG_BOARD_HEIGHT),
+    shapes=polygonShape(box=(KG_BOARD_WIDTH, 0))
+)
 
-# # Create a couple dynamic bodies
-# body0 = world.CreateStaticBody(position=(0,0))
-# box0 = body0.CreatePolygonFixture(box=(32, 24), density=1, friction=0.3)
+ground = world.CreateStaticBody(position=(0,0))
+ground_fixture = ground.CreatePolygonFixture(box=(KG_BOARD_WIDTH, KG_BOARD_HEIGHT), density=1, friction=0.3)
 
-# body = world.CreateDynamicBody(position=(18.75, 20))
-# circle = body.CreateCircleFixture(radius=0.5, density=1, friction=0.3)
+# --- dynamic bodies ---
 
-# # Create joint
-# joint = world.CreateFrictionJoint(bodyA=body0, bodyB=body, maxForce=7.5)
+ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, KG_BOARD_HEIGHT / 2))
+ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS, density=1, friction=0.3)
+
+# Create joint
+joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.001)
 
 colors = {
     staticBody: (255, 255, 255, 255),
     dynamicBody: (127, 127, 127, 255),
 }
 
-# Let's play with extending the shape classes to draw for us.
-
-
 def my_draw_polygon(polygon, body, fixture):
-    vertices = [(body.transform * v) * PPM for v in polygon.vertices]
-    vertices = [(v[0], SCREEN_HEIGHT - v[1]) for v in vertices]
-    pygame.draw.polygon(screen, colors[body.type], vertices)
+    # vertices = [(body.transform * v) * PPM for v in polygon.vertices]
+    # vertices = [(v[0], SCREEN_HEIGHT - v[1]) for v in vertices]
+    # pygame.draw.polygon(screen, colors[body.type], vertices)
+    pass
 polygonShape.draw = my_draw_polygon
-
 
 def my_draw_circle(circle, body, fixture):
     position = body.transform * circle.pos * PPM
     position = (position[0], SCREEN_HEIGHT - position[1])
     pygame.draw.circle(screen, colors[body.type], [int(
         x) for x in position], int(circle.radius * PPM))
-    # Note: Python 3.x will enforce that pygame get the integers it requests,
-    #       and it will not convert from float.
 circleShape.draw = my_draw_circle
 
 # --- main game loop ---
@@ -76,13 +85,12 @@ while running:
             # The user closed the window or pressed escape
             running = False
 
-    screen.fill((0, 0, 0, 0))
+    screen.blit(game_board, (0,0))
+
     # Draw the world
     for body in world.bodies:
         for fixture in body.fixtures:
             fixture.shape.draw(body, fixture)
-
-    screen.blit(game_board, (0,0))
 
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)
