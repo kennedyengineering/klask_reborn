@@ -53,8 +53,20 @@ ground_fixture = ground.CreatePolygonFixture(box=(KG_BOARD_WIDTH, KG_BOARD_HEIGH
 ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 3))
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS, density=1, friction=0.3)
 
+biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, KG_BOARD_HEIGHT / 2))
+biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS, density=1, friction=0.3)
+
+biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, (KG_BOARD_HEIGHT / 2) + KG_BISCUIT_START_OFFSET_Y))
+biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS, density=1, friction=0.3)
+
+biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, (KG_BOARD_HEIGHT / 2) - KG_BISCUIT_START_OFFSET_Y))
+biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS, density=1, friction=0.3)
+
 # Create joint
-joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.0015)
+ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.0015)
+biscuit1_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit1_body, maxForce=0.0015)
+biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_body, maxForce=0.0015)
+biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=0.0015)
 
 colors = {
     staticBody: (255, 255, 255, 255),
@@ -83,7 +95,6 @@ def my_draw_circle(circle, body, fixture):
 circleShape.draw = my_draw_circle
 
 # --- main game loop ---
-
 game_board = render_game_board(PPM)
 
 running = True
@@ -104,6 +115,7 @@ while running:
 
     # Apply forces
     ball_body.ApplyForce(force=(0.0005, 0), point=ball.shape.pos, wake=True)
+    biscuit1_body.ApplyForce(force=(0.0015, 0), point=biscuit1.shape.pos, wake=True)
 
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)
