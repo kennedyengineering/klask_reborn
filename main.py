@@ -1,8 +1,8 @@
 import pygame
-from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE)
+from pygame.locals import (QUIT, KEYDOWN, KEYUP, K_ESCAPE, K_w, K_a, K_s, K_d)
 
 import Box2D
-from Box2D.b2 import (world, edgeShape, polygonShape, circleShape, staticBody, dynamicBody)
+from Box2D.b2 import (world, edgeShape, polygonShape, circleShape, staticBody, dynamicBody, kinematicBody, vec2)
 
 from klask_render import render_game_board
 from klask_constants import *
@@ -25,7 +25,7 @@ clock = pygame.time.Clock()
 
 # --- pybox2d world setup ---
 # Create the world
-world = world(gravity=(0, -9.8), doSleep=True)
+world = world(gravity=(0, 0), doSleep=True)
 
 # --- static bodies ---
 wall_bottom = world.CreateStaticBody(
@@ -48,6 +48,19 @@ wall_top = world.CreateStaticBody(
 ground = world.CreateStaticBody(position=(0,0))
 ground_fixture = ground.CreatePolygonFixture(box=(KG_BOARD_WIDTH, KG_BOARD_HEIGHT), density=1, friction=0.3)
 
+# --- kinematic bodies ---
+
+puck1_body = world.CreateDynamicBody(
+    position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 2), 
+    shapes=circleShape(radius=KG_BALL_RADIUS),
+    bullet=True
+)
+
+puck2_body = world.CreateDynamicBody(
+    position=(2 * (KG_BOARD_WIDTH / 3), KG_BOARD_HEIGHT / 2), 
+    shapes=circleShape(radius=KG_BALL_RADIUS)
+)
+
 # --- dynamic bodies ---
 
 ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 3))
@@ -67,10 +80,13 @@ ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, max
 biscuit1_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit1_body, maxForce=0.0015)
 biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_body, maxForce=0.0015)
 biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=0.0015)
+puck1_body_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=puck1_body, maxForce=0.0)
+puck2_body_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=puck2_body, maxForce=0.0)
 
 colors = {
     staticBody: (255, 255, 255, 255),
     dynamicBody: (127, 127, 127, 255),
+    kinematicBody: (0,0,0)
 }
 
 def my_draw_polygon(polygon, body, fixture):
@@ -104,6 +120,18 @@ while running:
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             # The user closed the window or pressed escape
             running = False
+        elif event.type == KEYDOWN:
+            if event.key==K_w:
+                puck1_body.linearVelocity = vec2(0, 0.1)
+            if event.key==K_s:
+                puck1_body.linearVelocity = vec2(0, -0.1)
+            if event.key==K_a:
+                puck1_body.linearVelocity = vec2(-0.1 ,0)
+            if event.key==K_d:
+                puck1_body.linearVelocity = vec2(0.1, 0)
+        elif event.type == KEYUP:
+            puck1_body.linearVelocity = vec2(0, 0)
+    
 
     # Render the world
     screen.blit(game_board, (0,0))
