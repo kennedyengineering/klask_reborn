@@ -5,8 +5,6 @@ import math
 
 from klask_constants import *
 
-# TODO: render_game_board() only once, then keep using it
-
 def render_game_board(pixels_per_meter):
     # Create a new surface
     surface = pygame.Surface((KG_BOARD_WIDTH * pixels_per_meter, KG_BOARD_HEIGHT * pixels_per_meter), 0, 32)
