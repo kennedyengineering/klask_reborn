@@ -94,10 +94,6 @@ while running:
             # The user closed the window or pressed escape
             running = False
 
-    # Apply forces
-    world.ClearForces()
-    ball_body.ApplyForce(force=(0.0015, 0), point=ball.shape.pos, wake=True)
-
     # Render the world
     screen.blit(game_board, (0,0))
 
@@ -106,8 +102,12 @@ while running:
         for fixture in body.fixtures:
             fixture.shape.draw(body, fixture)
 
+    # Apply forces
+    ball_body.ApplyForce(force=(0.0005, 0), point=ball.shape.pos, wake=True)
+
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)
+    world.ClearForces()
 
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
