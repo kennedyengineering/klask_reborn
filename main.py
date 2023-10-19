@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE)
 
 import Box2D
-from Box2D.b2 import (world, polygonShape, circleShape, staticBody, dynamicBody)
+from Box2D.b2 import (world, edgeShape, polygonShape, circleShape, staticBody, dynamicBody)
 
 from klask_render import render_game_board
 from klask_constants import *
@@ -28,19 +28,19 @@ world = world(gravity=(0, -9.8), doSleep=True)
 # --- static bodies ---
 wall_bottom = world.CreateStaticBody(
     position=(0, 0),
-    shapes=polygonShape(box=(KG_BOARD_WIDTH, 0))
+    shapes=edgeShape(vertices=[(0,0), (KG_BOARD_WIDTH, 0)])
 )
 wall_left = world.CreateStaticBody(
     position=(0, 0),
-    shapes=polygonShape(box=(0, KG_BOARD_HEIGHT))
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH,0), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
 )
 wall_right = world.CreateStaticBody(
     position=(KG_BOARD_WIDTH, 0),
-    shapes=polygonShape(box=(0, KG_BOARD_HEIGHT))
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH, 0), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
 )
 wall_top = world.CreateStaticBody(
     position=(0, KG_BOARD_HEIGHT),
-    shapes=polygonShape(box=(KG_BOARD_WIDTH, 0))
+    shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
 )
 
 ground = world.CreateStaticBody(position=(0,0))
@@ -65,6 +65,13 @@ def my_draw_polygon(polygon, body, fixture):
     # pygame.draw.polygon(screen, colors[body.type], vertices)
     pass
 polygonShape.draw = my_draw_polygon
+
+def my_draw_edge(edge, body, fixture):
+    # vertices = [(body.transform * v) * PPM for v in polygon.vertices]
+    # vertices = [(v[0], SCREEN_HEIGHT - v[1]) for v in vertices]
+    # pygame.draw.polygon(screen, colors[body.type], vertices)
+    pass
+edgeShape.draw = my_draw_edge
 
 def my_draw_circle(circle, body, fixture):
     position = body.transform * circle.pos * PPM
