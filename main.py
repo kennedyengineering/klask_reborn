@@ -52,7 +52,7 @@ ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 2, KG_BOARD_HEIGH
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS, density=1, friction=0.3)
 
 # Create joint
-joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.001)
+joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.0015)
 
 colors = {
     staticBody: (255, 255, 255, 255),
