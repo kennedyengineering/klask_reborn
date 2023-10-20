@@ -34,14 +34,14 @@ wall_bottom = world.CreateStaticBody(
 )
 wall_left = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH,0), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
+    shapes=edgeShape(vertices=[(0,0), (0, KG_BOARD_HEIGHT)])
 )
 wall_right = world.CreateStaticBody(
-    position=(KG_BOARD_WIDTH, 0),
+    position=(0, 0),
     shapes=edgeShape(vertices=[(KG_BOARD_WIDTH, 0), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
 )
 wall_top = world.CreateStaticBody(
-    position=(0, KG_BOARD_HEIGHT),
+    position=(0, 0),
     shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT), (KG_BOARD_WIDTH, KG_BOARD_HEIGHT)])
 )
 
