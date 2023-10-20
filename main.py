@@ -53,24 +53,22 @@ puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALE
 puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER)
 
 ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3))
-ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, density=1, friction=0.3)
+ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=.85)
 
 biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
-biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, density=1, friction=0.3)
+biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
 biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
-biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, density=1, friction=0.3)
+biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
 biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
-biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, density=1, friction=0.3)
+biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
 # --- create joints ---
-ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=0.0015)
-biscuit1_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit1_body, maxForce=0.0015)
-biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_body, maxForce=0.0015)
-biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=0.0015)
-puck1_body_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=puck1_body, maxForce=0.0)
-puck2_body_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=puck2_body, maxForce=0.0)
+ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=15.0)
+biscuit1_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit1_body, maxForce=10.0)
+biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_body, maxForce=10.0)
+biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=10.0)
 
 def draw_circle_fixture(circle, color, pixels_per_meter, surface):
     position = circle.body.transform * circle.shape.pos * pixels_per_meter
@@ -92,15 +90,19 @@ while running:
     keys = pygame.key.get_pressed()
     vel_x = 0
     vel_y = 0
+    puck_speed = 1000
     if keys[K_w]:
-        vel_y += 0.1 * LENGTH_SCALER
+        vel_y += puck_speed
     if keys[K_s]:
-        vel_y += -0.1 * LENGTH_SCALER
+        vel_y += -puck_speed
     if keys[K_a]:
-        vel_x += -0.1 * LENGTH_SCALER
+        vel_x += -puck_speed
     if keys[K_d]:
-        vel_x += 0.1 * LENGTH_SCALER
+        vel_x += puck_speed
     puck1_body.linearVelocity = vec2(vel_x, vel_y)
+
+    # Control Puck 2
+    puck2_body.linearVelocity = vec2(0, 0)
 
     # Render the world
     screen.blit(game_board, (0,0))
