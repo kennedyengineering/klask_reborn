@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals import (QUIT, KEYDOWN, KEYUP, K_ESCAPE, K_w, K_a, K_s, K_d)
+from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
 
 import Box2D
 from Box2D.b2 import (world, edgeShape, vec2)
@@ -10,9 +10,9 @@ from klask_constants import *
 # --- constants ---
 # Box2D deals with meters, but we want to display pixels,
 # so define a conversion factor:
-LENGTH_SCALER = 1000
-PPM = 2
-TARGET_FPS = 60
+LENGTH_SCALER = 100
+PPM = 20
+TARGET_FPS = 120
 TIME_STEP = 1.0 / TARGET_FPS
 SCREEN_WIDTH, SCREEN_HEIGHT = KG_BOARD_WIDTH * PPM * LENGTH_SCALER, KG_BOARD_HEIGHT * PPM * LENGTH_SCALER
 
@@ -69,7 +69,9 @@ ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, max
 biscuit1_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit1_body, maxForce=10.0)
 biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_body, maxForce=10.0)
 biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=10.0)
+puck1_mouse_joint = None
 
+# --- render methods ---
 def draw_circle_fixture(circle, color, pixels_per_meter, surface):
     position = circle.body.transform * circle.shape.pos * pixels_per_meter
     position = (position[0], surface.get_height() - position[1])
@@ -85,21 +87,21 @@ while running:
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             # The user closed the window or pressed escape
             running = False
-    
-    # Control Puck 1
-    keys = pygame.key.get_pressed()
-    vel_x = 0
-    vel_y = 0
-    puck_speed = 1000
-    if keys[K_w]:
-        vel_y += puck_speed
-    if keys[K_s]:
-        vel_y += -puck_speed
-    if keys[K_a]:
-        vel_x += -puck_speed
-    if keys[K_d]:
-        vel_x += puck_speed
-    puck1_body.linearVelocity = vec2(vel_x, vel_y)
+
+        # Control Puck 1
+        if event.type == MOUSEBUTTONDOWN:
+            if puck1_mouse_joint:
+                world.DestroyJoint(puck1_mouse_joint)
+            puck1_mouse_joint = world.CreateMouseJoint(bodyA=ground, bodyB=puck1_body, target=puck1_body.position, maxForce=10000)#, dampingRatio=1.0, frequencyHz=60)
+        elif event.type == MOUSEBUTTONUP:
+            if puck1_mouse_joint:
+                world.DestroyJoint(puck1_mouse_joint)
+            puck1_mouse_joint = None
+            puck1_body.linearVelocity = (0, 0)
+        elif event.type == MOUSEMOTION:
+            x, y = pygame.mouse.get_pos()
+            if puck1_mouse_joint:
+                puck1_mouse_joint.target = (x / PPM, (SCREEN_HEIGHT - y) / PPM)
 
     # Control Puck 2
     puck2_body.linearVelocity = vec2(0, 0)
@@ -121,9 +123,25 @@ while running:
     # biscuit2_body.ApplyForce(force=(0.0015, 0), point=biscuit2.shape.pos, wake=True)
     # biscuit3_body.ApplyForce(force=(0.0015, 0), point=biscuit3.shape.pos, wake=True)
 
+    # Control Puck 1
+    # keys = pygame.key.get_pressed()
+    # force = 100000
+    # # puck1_body.linearVelocity= vec2(0,0)
+    # if keys[K_w]:
+    #     # puck1_body.ApplyForceToCenter(vec2(0, force), wake=True)
+    #     puck1_body.ApplyLinearImpulse(vec2(0, force), puck1_body.position, wake=True)
+    # if keys[K_s]:
+    #     #  puck1_body.ApplyForceToCenter(vec2(0, -force), wake=True)
+    #     puck1_body.ApplyLinearImpulse(vec2(0, -force), puck1_body.position, wake=True)
+    # if keys[K_a]:
+    #     #  puck1_body.ApplyForceToCenter(vec2(-force, 0), wake=True)
+    #     puck1_body.ApplyLinearImpulse(vec2(-force, 0), puck1_body.position, wake=True)
+    # if keys[K_d]:
+    #     # puck1_body.ApplyForceToCenter(vec2(force, 0), wake=True)
+    #     puck1_body.ApplyLinearImpulse(vec2(force, 0), puck1_body.position, wake=True)
+
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)
-    world.ClearForces()
 
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
