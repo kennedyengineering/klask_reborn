@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import (QUIT, KEYDOWN, KEYUP, K_ESCAPE, K_w, K_a, K_s, K_d)
 
 import Box2D
-from Box2D.b2 import (world, edgeShape, polygonShape, circleShape, staticBody, dynamicBody, kinematicBody, vec2)
+from Box2D.b2 import (world, edgeShape, vec2)
 
 from klask_render import render_game_board
 from klask_constants import *
