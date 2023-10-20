@@ -1,15 +1,15 @@
+from dataclasses import dataclass
+
 import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
 
 import Box2D
-from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener, getPointStates, addState)
+from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener)
 
 from klask_render import render_game_board
 from klask_constants import *
 
 # --- constants ---
-# Box2D deals with meters, but we want to display pixels,
-# so define a conversion factor:
 LENGTH_SCALER = 100
 PPM = 20
 TARGET_FPS = 120
@@ -21,63 +21,68 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 pygame.display.set_caption('Klask Simulator')
 clock = pygame.time.Clock()
 
-# --- pybox2d world setup ---
 # --- create contact listener ---
 class myContactListener(contactListener):
     def __init__(self):
         contactListener.__init__(self)
-    def BeginContact(self, contact):
-        pass
-    def EndContact(self, contact):
-        pass
+        self.collision_list = []
     def PreSolve(self, contact, oldManifold):
         bodyA = contact.fixtureA.body
         bodyB = contact.fixtureB.body
-        print(contact)
-    def PostSolve(self, contact, impulse):
-        pass
+        self.collision_list.append((bodyA, bodyB))
 
 # --- create the world ---
 world = world(contactListener=myContactListener(), gravity=(0, 0), doSleep=True)
 
 # --- static bodies ---
+@dataclass
+class bodyUserData:
+    name: str
+    color: tuple = (127, 127, 127)
+
 wall_bottom = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0,0), (KG_BOARD_WIDTH * LENGTH_SCALER, 0)])
+    shapes=edgeShape(vertices=[(0,0), (KG_BOARD_WIDTH * LENGTH_SCALER, 0)]),
+    userData=bodyUserData("wall_bottom")
 )
 wall_left = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0,0), (0, KG_BOARD_HEIGHT * LENGTH_SCALER)])
+    shapes=edgeShape(vertices=[(0,0), (0, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
+    userData=bodyUserData("wall_left")
 )
 wall_right = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER, 0), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)])
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER, 0), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
+    userData=bodyUserData("wall_right")
 )
 wall_top = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT * LENGTH_SCALER), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)])
+    shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT * LENGTH_SCALER), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
+    userData=bodyUserData("wall_top")
 )
 
 ground = world.CreateStaticBody(position=(0,0))
 
 # --- dynamic bodies ---
-puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("puck1", KG_PUCK_COLOR))
 puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER)
 
-puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("puck2", KG_PUCK_COLOR))
 puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER)
 
-ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3))
+ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3), userData=bodyUserData("ball", KG_BALL_COLOR))
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=.85)
 
-biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("biscuit1", KG_BISCUIT_COLOR))
 biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
-biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
+biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), userData=bodyUserData("biscuit2", KG_BISCUIT_COLOR))
 biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
-biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
+biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), userData=bodyUserData("biscuit3", KG_BISCUIT_COLOR))
 biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
+
+alive = [puck1, puck2, ball, biscuit1, biscuit2, biscuit3]
 
 # --- create joints ---
 ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=15.0)
@@ -147,18 +152,8 @@ while running:
     screen.blit(game_board, (0,0))
 
     # Draw the world
-    draw_circle_fixture(puck1, KG_PUCK_COLOR, PPM, screen)
-    draw_circle_fixture(puck2, KG_PUCK_COLOR, PPM, screen)
-    draw_circle_fixture(ball, KG_BALL_COLOR, PPM, screen)
-    draw_circle_fixture(biscuit1, KG_BISCUIT_COLOR, PPM, screen)
-    draw_circle_fixture(biscuit2, KG_BISCUIT_COLOR, PPM, screen)
-    draw_circle_fixture(biscuit3, KG_BISCUIT_COLOR, PPM, screen)
-
-    # Apply forces
-    # ball_body.ApplyForce(force=(0.0005, 0), point=ball.shape.pos, wake=True)
-    # biscuit1_body.ApplyForce(force=(0.0015, 0), point=biscuit1.shape.pos, wake=True)
-    # biscuit2_body.ApplyForce(force=(0.0015, 0), point=biscuit2.shape.pos, wake=True)
-    # biscuit3_body.ApplyForce(force=(0.0015, 0), point=biscuit3.shape.pos, wake=True)
+    for fixture in alive:
+        draw_circle_fixture(fixture, fixture.body.userData.color, PPM, screen)
 
     # Control Puck 1
     # keys = pygame.key.get_pressed()
@@ -180,11 +175,19 @@ while running:
     # Make Box2D simulate the physics of our world for one step.
     world.Step(TIME_STEP, 10, 10)
 
+    # Handle collisions
+    while world.contactListener.collision_list:
+        # Sort body by name
+        bodyA, bodyB = world.contactListener.collision_list.pop()
+        names = {bodyA.userData.name : bodyA, bodyB.userData.name : bodyB}
+        
+        if "puck1" in names and "biscuit1" in names:
+            print("biscuit!")
+            # world.DestroyBody(biscuit1_body)
+
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
     clock.tick(TARGET_FPS)
     # print(clock.get_fps())
 
 pygame.quit()
-print('Done!')
-
