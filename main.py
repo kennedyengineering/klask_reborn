@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
 
 import Box2D
-from Box2D.b2 import (world, edgeShape, vec2)
+from Box2D.b2 import (world, edgeShape, vec2, pi)
 
 from klask_render import render_game_board
 from klask_constants import *
@@ -71,6 +71,21 @@ biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_b
 biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=10.0)
 puck1_mouse_joint = None
 
+def apply_magnet_joint(bodyA, bodyB, permeability, magnetic_chargeA, magnetic_chargeB):
+    # Get the distance vector between the two bodies
+    force = (bodyA.position - bodyB.position)
+
+    # Normalize the distance vector and get the Euclidean distance between the two bodies
+    separation = force.Normalize()
+
+    # Compute magnetic force between two points
+    force *= (permeability * magnetic_chargeA * magnetic_chargeB) / (4 * pi * separation**2)
+
+    # Apply forces to bodies
+    bodyB.ApplyForceToCenter(force=force, wake=True)
+    bodyA.ApplyForceToCenter(force=-force, wake=True)
+
+
 # --- render methods ---
 def draw_circle_fixture(circle, color, pixels_per_meter, surface):
     position = circle.body.transform * circle.shape.pos * pixels_per_meter
@@ -105,6 +120,14 @@ while running:
 
     # Control Puck 2
     puck2_body.linearVelocity = vec2(0, 0)
+
+    # Apply Magnetic Force
+    permeability_air = 1.25663753e10-6  
+    magnetic_charge = 0.001
+    force = (puck1_body.position - biscuit1_body.position)
+    distance = force.Normalize()
+    force *= (permeability_air * magnetic_charge**2) / (4 * pi * distance**2)
+    biscuit1_body.ApplyForceToCenter(force=force, wake=True)
 
     # Render the world
     screen.blit(game_board, (0,0))
