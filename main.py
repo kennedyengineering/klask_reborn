@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
 
 import Box2D
-from Box2D.b2 import (world, edgeShape, vec2, pi)
+from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener, getPointStates, addState)
 
 from klask_render import render_game_board
 from klask_constants import *
@@ -22,8 +22,23 @@ pygame.display.set_caption('Klask Simulator')
 clock = pygame.time.Clock()
 
 # --- pybox2d world setup ---
-# Create the world
-world = world(gravity=(0, 0), doSleep=True)
+# --- create contact listener ---
+class myContactListener(contactListener):
+    def __init__(self):
+        contactListener.__init__(self)
+    def BeginContact(self, contact):
+        pass
+    def EndContact(self, contact):
+        pass
+    def PreSolve(self, contact, oldManifold):
+        bodyA = contact.fixtureA.body
+        bodyB = contact.fixtureB.body
+        print(contact)
+    def PostSolve(self, contact, impulse):
+        pass
+
+# --- create the world ---
+world = world(contactListener=myContactListener(), gravity=(0, 0), doSleep=True)
 
 # --- static bodies ---
 wall_bottom = world.CreateStaticBody(
@@ -84,7 +99,6 @@ def apply_magnet_joint(bodyA, bodyB, permeability, magnetic_chargeA, magnetic_ch
     # Apply forces to bodies
     bodyB.ApplyForceToCenter(force=force, wake=True)
     bodyA.ApplyForceToCenter(force=-force, wake=True)
-
 
 # --- render methods ---
 def draw_circle_fixture(circle, color, pixels_per_meter, surface):
