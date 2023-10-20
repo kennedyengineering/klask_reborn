@@ -45,19 +45,13 @@ wall_top = world.CreateStaticBody(
 )
 
 ground = world.CreateStaticBody(position=(0,0))
-ground_fixture = ground.CreatePolygonFixture(box=(KG_BOARD_WIDTH, KG_BOARD_HEIGHT), density=1, friction=0.3)
 
 # --- dynamic bodies ---
-puck1_body = world.CreateDynamicBody(
-    position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 2), 
-    shapes=circleShape(radius=KG_BALL_RADIUS),
-    bullet=True
-)
+puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 2))
+puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS)
 
-puck2_body = world.CreateDynamicBody(
-    position=(2 * (KG_BOARD_WIDTH / 3), KG_BOARD_HEIGHT / 2), 
-    shapes=circleShape(radius=KG_BALL_RADIUS)
-)
+puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 2))
+puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS)
 
 ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH / 3, KG_BOARD_HEIGHT / 3))
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS, density=1, friction=0.3)
@@ -94,31 +88,32 @@ while running:
         if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             # The user closed the window or pressed escape
             running = False
-        elif event.type == KEYDOWN:
-            if event.key==K_w:
-                puck1_body.linearVelocity = vec2(0, 0.1)
-            if event.key==K_s:
-                puck1_body.linearVelocity = vec2(0, -0.1)
-            if event.key==K_a:
-                puck1_body.linearVelocity = vec2(-0.1 ,0)
-            if event.key==K_d:
-                puck1_body.linearVelocity = vec2(0.1, 0)
-        elif event.type == KEYUP:
-            puck1_body.linearVelocity = vec2(0, 0)
     
+    # Control Puck 1
+    keys = pygame.key.get_pressed()
+    vel_x = 0
+    vel_y = 0
+    if keys[K_w]:
+        vel_y += 0.1
+    if keys[K_s]:
+        vel_y += -0.1
+    if keys[K_a]:
+        vel_x += -0.1
+    if keys[K_d]:
+        vel_x += 0.1
+    puck1_body.linearVelocity = vec2(vel_x, vel_y)
 
     # Render the world
     screen.blit(game_board, (0,0))
 
     # Draw the world
 
-    draw_circle_fixture(puck1_body.fixtures[0], KG_PUCK_COLOR, PPM, screen)
-    draw_circle_fixture(puck2_body.fixtures[0], KG_PUCK_COLOR, PPM, screen)
+    draw_circle_fixture(puck1, KG_PUCK_COLOR, PPM, screen)
+    draw_circle_fixture(puck2, KG_PUCK_COLOR, PPM, screen)
     draw_circle_fixture(ball, KG_BALL_COLOR, PPM, screen)
     draw_circle_fixture(biscuit1, KG_BISCUIT_COLOR, PPM, screen)
     draw_circle_fixture(biscuit2, KG_BISCUIT_COLOR, PPM, screen)
     draw_circle_fixture(biscuit3, KG_BISCUIT_COLOR, PPM, screen)
-
 
     # Apply forces
     # ball_body.ApplyForce(force=(0.0005, 0), point=ball.shape.pos, wake=True)
@@ -133,6 +128,7 @@ while running:
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
     clock.tick(TARGET_FPS)
+    # print(clock.get_fps())
 
 pygame.quit()
 print('Done!')
