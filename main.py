@@ -9,6 +9,9 @@ from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener)
 from klask_render import render_game_board
 from klask_constants import *
 
+
+# TODO: can use the number of fixtures on puck* to count the number of biscuits attached
+
 # --- constants ---
 LENGTH_SCALER = 100
 PPM = 20
@@ -75,7 +78,7 @@ biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_S
 biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
 biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7, userData=fixtureUserData("biscuit3", KG_BISCUIT_COLOR))
 
-biscuit_bodies = [biscuit1_body]#, biscuit2_body, biscuit3_body]
+biscuit_bodies = [biscuit1_body, biscuit2_body, biscuit3_body]
 render_bodies = [puck1_body, puck2_body, ball_body, biscuit1_body, biscuit2_body, biscuit3_body]
 
 # --- create joints ---
@@ -176,20 +179,23 @@ while running:
             continue
 
         names = {fixtureA.userData.name : fixtureA, fixtureB.userData.name : fixtureB}
-        
-        if "puck1" in names and "biscuit1" in names:
-            print("biscuit!")
+        keys = list(names.keys())
+
+        # Determine if collision between puck and biscuit
+        if any(["puck" in x for x in keys]) and any(["biscuit" in x for x in keys]):
+            puck = names[min(keys, key=len)]
+            biscuit = names[max(keys, key=len)]
             
-            position = (biscuit1_body.position - puck1_body.position)
+            position = (biscuit.body.position - puck.body.position)
             position.Normalize()
-            position = position * (puck1.shape.radius + biscuit1.shape.radius / 2)
+            position = position * (puck.shape.radius + biscuit.shape.radius / 2)
 
-            biscuit1 = puck1_body.CreateCircleFixture(radius=biscuit1.shape.radius, pos=position, userData=biscuit1.userData)
-            biscuit1.sensor = True
+            new_biscuit = puck.body.CreateCircleFixture(radius=biscuit.shape.radius, pos=position, userData=biscuit.userData)
+            new_biscuit.sensor = True
 
-            biscuit_bodies.remove(biscuit1_body)
-            render_bodies.remove(biscuit1_body)
-            world.DestroyBody(biscuit1_body)
+            biscuit_bodies.remove(biscuit.body)
+            render_bodies.remove(biscuit.body)
+            world.DestroyBody(biscuit.body)
 
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
