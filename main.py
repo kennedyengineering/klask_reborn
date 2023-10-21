@@ -26,63 +26,56 @@ class myContactListener(contactListener):
     def __init__(self):
         contactListener.__init__(self)
         self.collision_list = []
-    def PreSolve(self, contact, oldManifold):
-        bodyA = contact.fixtureA.body
-        bodyB = contact.fixtureB.body
-        self.collision_list.append((bodyA, bodyB))
+    def PostSolve(self, contact, oldManifold):
+        self.collision_list.append((contact.fixtureA, contact.fixtureB))
 
 # --- create the world ---
 world = world(contactListener=myContactListener(), gravity=(0, 0), doSleep=True)
 
 # --- static bodies ---
-@dataclass
-class bodyUserData:
-    name: str
-    color: tuple = (127, 127, 127)
-
 wall_bottom = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0,0), (KG_BOARD_WIDTH * LENGTH_SCALER, 0)]),
-    userData=bodyUserData("wall_bottom")
+    shapes=edgeShape(vertices=[(0,0), (KG_BOARD_WIDTH * LENGTH_SCALER, 0)])
 )
 wall_left = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0,0), (0, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
-    userData=bodyUserData("wall_left")
+    shapes=edgeShape(vertices=[(0,0), (0, KG_BOARD_HEIGHT * LENGTH_SCALER)])
 )
 wall_right = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER, 0), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
-    userData=bodyUserData("wall_right")
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER, 0), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)])
 )
 wall_top = world.CreateStaticBody(
     position=(0, 0),
-    shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT * LENGTH_SCALER), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)]),
-    userData=bodyUserData("wall_top")
+    shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT * LENGTH_SCALER), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)])
 )
 
 ground = world.CreateStaticBody(position=(0,0))
+@dataclass
+class fixtureUserData:
+    name: str
+    color: tuple
 
 # --- dynamic bodies ---
-puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("puck1", KG_PUCK_COLOR))
-puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER)
+puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER, userData=fixtureUserData("puck1", KG_PUCK_COLOR))
 
-puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("puck2", KG_PUCK_COLOR))
-puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER)
+puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER, userData=fixtureUserData("puck2", KG_PUCK_COLOR))
 
-ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3), userData=bodyUserData("ball", KG_BALL_COLOR))
-ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=.85)
+ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3))
+ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=.85, userData=fixtureUserData("ball", KG_BALL_COLOR))
 
-biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), userData=bodyUserData("biscuit1", KG_BISCUIT_COLOR))
-biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
+biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2))
+biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7, userData=fixtureUserData("biscuit1", KG_BISCUIT_COLOR))
 
-biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), userData=bodyUserData("biscuit2", KG_BISCUIT_COLOR))
-biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
+biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
+biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7, userData=fixtureUserData("biscuit2", KG_BISCUIT_COLOR))
 
-biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), userData=bodyUserData("biscuit3", KG_BISCUIT_COLOR))
-biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
+biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER))
+biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7, userData=fixtureUserData("biscuit3", KG_BISCUIT_COLOR))
 
-biscuit_bodies = [biscuit1_body, biscuit2_body, biscuit3_body]
+biscuit_bodies = [biscuit1_body]#, biscuit2_body, biscuit3_body]
 render_bodies = [puck1_body, puck2_body, ball_body, biscuit1_body, biscuit2_body, biscuit3_body]
 
 # --- create joints ---
@@ -106,10 +99,10 @@ def apply_magnet_force(puck_body, biscuit_body, permeability, magnetic_charge):
     biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
 # --- render methods ---
-def draw_circle_fixture(circle, color, pixels_per_meter, surface):
+def draw_circle_fixture(circle, pixels_per_meter, surface):
     position = circle.body.transform * circle.shape.pos * pixels_per_meter
     position = (position[0], surface.get_height() - position[1])
-    pygame.draw.circle(screen, color, [int(x) for x in position], int(circle.shape.radius * pixels_per_meter))
+    pygame.draw.circle(screen, circle.userData.color, [int(x) for x in position], int(circle.shape.radius * pixels_per_meter))
 
 # --- main game loop ---
 game_board = render_game_board(PPM * LENGTH_SCALER)
@@ -150,7 +143,8 @@ while running:
 
     # Draw the world
     for body in render_bodies:
-        draw_circle_fixture(body.fixtures[0], body.userData.color, PPM, screen)
+        for fixture in body:
+            draw_circle_fixture(fixture, PPM, screen)
 
     # Control Puck 1
     # keys = pygame.key.get_pressed()
@@ -175,14 +169,27 @@ while running:
     # Handle collisions
     while world.contactListener.collision_list:
         # Sort body by name
-        bodyA, bodyB = world.contactListener.collision_list.pop()
-        names = {bodyA.userData.name : bodyA, bodyB.userData.name : bodyB}
+        fixtureA, fixtureB = world.contactListener.collision_list.pop()
+        
+        # Check if a collision with a static body
+        if fixtureA.userData is None or fixtureB.userData is None:
+            continue
+
+        names = {fixtureA.userData.name : fixtureA, fixtureB.userData.name : fixtureB}
         
         if "puck1" in names and "biscuit1" in names:
             print("biscuit!")
-            # alive.remove(biscuit1)
-            # biscuit1 = None
-            # world.DestroyBody(biscuit1_body)
+            
+            position = (biscuit1_body.position - puck1_body.position)
+            position.Normalize()
+            position = position * (puck1.shape.radius + biscuit1.shape.radius / 2)
+
+            biscuit1 = puck1_body.CreateCircleFixture(radius=biscuit1.shape.radius, pos=position, userData=biscuit1.userData)
+            biscuit1.sensor = True
+
+            biscuit_bodies.remove(biscuit1_body)
+            render_bodies.remove(biscuit1_body)
+            world.DestroyBody(biscuit1_body)
 
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
