@@ -11,6 +11,8 @@ from klask_constants import *
 
 
 # TODO: can use the number of fixtures on puck* to count the number of biscuits attached
+# TODO: fix ball getting stuck along walls
+
 
 # --- constants ---
 LENGTH_SCALER = 100
