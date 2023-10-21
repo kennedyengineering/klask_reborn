@@ -82,7 +82,8 @@ biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_S
 biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), userData=bodyUserData("biscuit3", KG_BISCUIT_COLOR))
 biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=.7)
 
-alive = [puck1, puck2, ball, biscuit1, biscuit2, biscuit3]
+biscuit_bodies = [biscuit1_body, biscuit2_body, biscuit3_body]
+render_bodies = [puck1_body, puck2_body, ball_body, biscuit1_body, biscuit2_body, biscuit3_body]
 
 # --- create joints ---
 ball_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=ball_body, maxForce=15.0)
@@ -91,19 +92,18 @@ biscuit2_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit2_b
 biscuit3_ground_joint = world.CreateFrictionJoint(bodyA=ground, bodyB=biscuit3_body, maxForce=10.0)
 puck1_mouse_joint = None
 
-def apply_magnet_joint(bodyA, bodyB, permeability, magnetic_chargeA, magnetic_chargeB):
+def apply_magnet_force(puck_body, biscuit_body, permeability, magnetic_charge):
     # Get the distance vector between the two bodies
-    force = (bodyA.position - bodyB.position)
+    force = (puck_body.position - biscuit_body.position)
 
     # Normalize the distance vector and get the Euclidean distance between the two bodies
     separation = force.Normalize()
 
     # Compute magnetic force between two points
-    force *= (permeability * magnetic_chargeA * magnetic_chargeB) / (4 * pi * separation**2)
+    force *= (permeability * magnetic_charge**2) / (4 * pi * separation**2)
 
     # Apply forces to bodies
-    bodyB.ApplyForceToCenter(force=force, wake=True)
-    bodyA.ApplyForceToCenter(force=-force, wake=True)
+    biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
 # --- render methods ---
 def draw_circle_fixture(circle, color, pixels_per_meter, surface):
@@ -141,19 +141,16 @@ while running:
     puck2_body.linearVelocity = vec2(0, 0)
 
     # Apply Magnetic Force
-    permeability_air = 1.25663753e10-6  
-    magnetic_charge = 0.001
-    force = (puck1_body.position - biscuit1_body.position)
-    distance = force.Normalize()
-    force *= (permeability_air * magnetic_charge**2) / (4 * pi * distance**2)
-    biscuit1_body.ApplyForceToCenter(force=force, wake=True)
+    for biscuit_body in biscuit_bodies:
+        apply_magnet_force(puck1_body, biscuit_body, KG_PERMEABILITY_AIR, KG_MAGNETIC_CHARGE)
+        apply_magnet_force(puck2_body, biscuit_body, KG_PERMEABILITY_AIR, KG_MAGNETIC_CHARGE)
 
     # Render the world
     screen.blit(game_board, (0,0))
 
     # Draw the world
-    for fixture in alive:
-        draw_circle_fixture(fixture, fixture.body.userData.color, PPM, screen)
+    for body in render_bodies:
+        draw_circle_fixture(body.fixtures[0], body.userData.color, PPM, screen)
 
     # Control Puck 1
     # keys = pygame.key.get_pressed()
@@ -183,6 +180,8 @@ while running:
         
         if "puck1" in names and "biscuit1" in names:
             print("biscuit!")
+            # alive.remove(biscuit1)
+            # biscuit1 = None
             # world.DestroyBody(biscuit1_body)
 
     # Flip the screen and try to keep at the target FPS
