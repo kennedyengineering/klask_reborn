@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from random import choice
 
 import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
@@ -96,7 +97,13 @@ puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER, re
 puck2_body = world.CreateDynamicBody(position=(2 * KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), fixedRotation=True, bullet=True)
 puck2 = puck2_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER, restitution=0.0, userData=fixtureUserData("puck2", KG_PUCK_COLOR), density=KG_PUCK_MASS / (pi * (KG_PUCK_RADIUS * LENGTH_SCALER)**2))
 
-ball_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 3), bullet=True)
+ball_start_positions = [(KG_BOARD_WIDTH * LENGTH_SCALER - KG_CORNER_RADIUS * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER - KG_CORNER_RADIUS * LENGTH_SCALER / 2),    # Top right corner
+                        (KG_BOARD_WIDTH * LENGTH_SCALER - KG_CORNER_RADIUS * LENGTH_SCALER / 2, KG_CORNER_RADIUS * LENGTH_SCALER / 2),                                      # Bottom right corner
+                        (KG_CORNER_RADIUS * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER - KG_CORNER_RADIUS * LENGTH_SCALER / 2),                                     # Top left corner
+                        (KG_CORNER_RADIUS * LENGTH_SCALER / 2, KG_CORNER_RADIUS * LENGTH_SCALER / 2)]                                                                       # Bottom left corner
+ball_start_position = choice(ball_start_positions)
+
+ball_body = world.CreateDynamicBody(position=ball_start_position, bullet=True)
 ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("ball", KG_BALL_COLOR), density=KG_BALL_MASS / (pi * (KG_BALL_RADIUS * LENGTH_SCALER)**2))
 
 biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), bullet=True)
@@ -136,6 +143,8 @@ def draw_circle_fixture(circle, pixels_per_meter, surface):
     position = circle.body.transform * circle.shape.pos * pixels_per_meter
     position = (position[0], surface.get_height() - position[1])
     pygame.draw.circle(screen, circle.userData.color, [int(x) for x in position], int(circle.shape.radius * pixels_per_meter))
+
+# --- game state methods ---
 
 # --- main game loop ---
 game_board = render_game_board(PPM * LENGTH_SCALER)
