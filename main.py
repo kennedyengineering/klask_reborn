@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from random import choice
+from math import dist
 
 import pygame
 from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE, MOUSEBUTTONDOWN, MOUSEBUTTONUP, MOUSEMOTION)
@@ -145,6 +146,12 @@ def draw_circle_fixture(circle, pixels_per_meter, surface):
     pygame.draw.circle(screen, circle.userData.color, [int(x) for x in position], int(circle.shape.radius * pixels_per_meter))
 
 # --- game state methods ---
+def is_body_in_goal(body):
+    return dist(body.position, (KG_GOAL_OFFSET_X * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER or \
+        dist(body.position, ((KG_BOARD_WIDTH - KG_GOAL_OFFSET_X) * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER
+
+def num_biscuits_on_puck(puck_body):
+    return len(puck_body.fixtures) - 1
 
 # --- main game loop ---
 game_board = render_game_board(PPM * LENGTH_SCALER)
