@@ -12,7 +12,6 @@ from klask_render import render_game_board
 from klask_constants import *
 
 # TODO: generate game states
-# TODO: can use the number of fixtures on puck* to count the number of biscuits attached
 # TODO: prevent force from ball applied on puck, but keep force of puck on ball?
 
 # --- constants ---
@@ -85,13 +84,26 @@ wall_top = world.CreateStaticBody(
     shapes=edgeShape(vertices=[(0, KG_BOARD_HEIGHT * LENGTH_SCALER), (KG_BOARD_WIDTH * LENGTH_SCALER, KG_BOARD_HEIGHT * LENGTH_SCALER)])
 )
 
+divider_left = world.CreateStaticBody(
+    position=(0, 0),
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER / 2 - KG_DIVIDER_WIDTH * LENGTH_SCALER / 2, 0), (KG_BOARD_WIDTH * LENGTH_SCALER / 2 - KG_DIVIDER_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER)])
+)
+divider_left.fixtures[0].filterData.categoryBits=0x0010
+
+divider_right = world.CreateStaticBody(
+    position=(0, 0),
+    shapes=edgeShape(vertices=[(KG_BOARD_WIDTH * LENGTH_SCALER / 2 + KG_DIVIDER_WIDTH * LENGTH_SCALER / 2, 0), (KG_BOARD_WIDTH * LENGTH_SCALER / 2 + KG_DIVIDER_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER)])
+)
+divider_right.fixtures[0].filterData.categoryBits=0x0010
+
 ground = world.CreateStaticBody(position=(0,0))
+
+# --- dynamic bodies ---
 @dataclass
 class fixtureUserData:
     name: str
     color: tuple
 
-# --- dynamic bodies ---
 puck1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 3, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), fixedRotation=True, bullet=True)
 puck1 = puck1_body.CreateCircleFixture(radius=KG_PUCK_RADIUS * LENGTH_SCALER, restitution=0.0, userData=fixtureUserData("puck1", KG_PUCK_COLOR), density=KG_PUCK_MASS / (pi * (KG_PUCK_RADIUS * LENGTH_SCALER)**2))
 
@@ -105,16 +117,16 @@ ball_start_positions = [(KG_BOARD_WIDTH * LENGTH_SCALER - KG_CORNER_RADIUS * LEN
 ball_start_position = choice(ball_start_positions)
 
 ball_body = world.CreateDynamicBody(position=ball_start_position, bullet=True)
-ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("ball", KG_BALL_COLOR), density=KG_BALL_MASS / (pi * (KG_BALL_RADIUS * LENGTH_SCALER)**2))
+ball = ball_body.CreateCircleFixture(radius=KG_BALL_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("ball", KG_BALL_COLOR), density=KG_BALL_MASS / (pi * (KG_BALL_RADIUS * LENGTH_SCALER)**2), maskBits=0xFF0F)
 
 biscuit1_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, KG_BOARD_HEIGHT * LENGTH_SCALER / 2), bullet=True)
-biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit1", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2))
+biscuit1 = biscuit1_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit1", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2), maskBits=0xFF0F)
 
 biscuit2_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) + KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), bullet=True)
-biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit2", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2))
+biscuit2 = biscuit2_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit2", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2), maskBits=0xFF0F)
 
 biscuit3_body = world.CreateDynamicBody(position=(KG_BOARD_WIDTH * LENGTH_SCALER / 2, (KG_BOARD_HEIGHT * LENGTH_SCALER / 2) - KG_BISCUIT_START_OFFSET_Y * LENGTH_SCALER), bullet=True)
-biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit3", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2))
+biscuit3 = biscuit3_body.CreateCircleFixture(radius=KG_BISCUIT_RADIUS * LENGTH_SCALER, restitution=KG_RESTITUTION_COEF, userData=fixtureUserData("biscuit3", KG_BISCUIT_COLOR), density=KG_BISCUIT_MASS / (pi * (KG_BISCUIT_RADIUS * LENGTH_SCALER)**2), maskBits=0xFF0F)
 
 biscuit_bodies = [biscuit1_body, biscuit2_body, biscuit3_body]
 render_bodies = [puck1_body, puck2_body, ball_body, biscuit1_body, biscuit2_body, biscuit3_body]
