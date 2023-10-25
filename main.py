@@ -189,7 +189,7 @@ while running:
             
             position = (biscuit.body.position - puck.body.position)
             position.Normalize()
-            position = position * (puck.shape.radius + biscuit.shape.radius / 2)
+            position = position * (puck.shape.radius + biscuit.shape.radius)
 
             new_biscuit = puck.body.CreateCircleFixture(radius=biscuit.shape.radius, pos=position, userData=biscuit.userData)
             new_biscuit.sensor = True
