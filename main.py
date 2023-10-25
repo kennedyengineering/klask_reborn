@@ -9,9 +9,9 @@ from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener)
 from klask_render import render_game_board
 from klask_constants import *
 
-
+# TODO: generate game states
 # TODO: can use the number of fixtures on puck* to count the number of biscuits attached
-
+# TODO: prevent force from ball applied on puck, but keep force of puck on ball?
 
 # --- constants ---
 LENGTH_SCALER = 100         # Box2D doesn't simulate small objects very well. Scale distances into the meter range.
@@ -51,6 +51,12 @@ class myContactListener(contactListener):
             contact.enabled = False
             # Mark biscuit for deletion
             self.collision_list.append((puck, biscuit))
+        # Determine if collision between puck and ball
+        if any(["puck" in x for x in keys]) and any(["ball" in x for x in keys]):
+            # Retrieve fixtures
+            puck = names[max(keys, key=len)]
+            ball = names[min(keys, key=len)]
+            # Do something ...
 
     def PostSolve(self, contact, impulse):
         # Find out what the collision response was
