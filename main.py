@@ -11,12 +11,11 @@ from klask_constants import *
 
 
 # TODO: can use the number of fixtures on puck* to count the number of biscuits attached
-# TODO: fix ball getting stuck along walls
 
 
 # --- constants ---
-LENGTH_SCALER = 100
-PPM = 20
+LENGTH_SCALER = 100         # Box2D doesn't simulate small objects very well. Scale distances into the meter range.
+PPM = 20                    # Pixels per meter
 TARGET_FPS = 120
 TIME_STEP = 1.0 / TARGET_FPS
 SCREEN_WIDTH, SCREEN_HEIGHT = KG_BOARD_WIDTH * PPM * LENGTH_SCALER, KG_BOARD_HEIGHT * PPM * LENGTH_SCALER
