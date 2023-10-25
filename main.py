@@ -29,9 +29,32 @@ clock = pygame.time.Clock()
 class myContactListener(contactListener):
     def __init__(self):
         contactListener.__init__(self)
+
         self.collision_list = []
+
+    def PreSolve(self, contact, oldManifold):
+        # Change the characteristics of the contact before the collision response is calculated
+
+        # Check if a collision with a static body
+        if contact.fixtureA.userData is None or contact.fixtureB.userData is None:
+            return
+        
+        names = {contact.fixtureA.userData.name : contact.fixtureA, contact.fixtureB.userData.name : contact.fixtureB}
+        keys = list(names.keys())
+
+        # Determine if collision between puck and biscuit
+        if any(["puck" in x for x in keys]) and any(["biscuit" in x for x in keys]):
+            # Retrieve fixtures
+            puck = names[min(keys, key=len)]
+            biscuit = names[max(keys, key=len)]
+            # Disable contact
+            contact.enabled = False
+            # Mark biscuit for deletion
+            self.collision_list.append((puck, biscuit))
+
     def PostSolve(self, contact, impulse):
-        self.collision_list.append((contact.fixtureA, contact.fixtureB))
+        # Find out what the collision response was
+        pass
 
 # --- create the world ---
 world = world(contactListener=myContactListener(), gravity=(0, 0), doSleep=True)
@@ -172,37 +195,22 @@ while running:
 
     # Handle collisions
     while world.contactListener.collision_list:
-        # Sort body by name
-        fixtureA, fixtureB = world.contactListener.collision_list.pop()
+        # Retrieve fixtures
+        puck, biscuit = world.contactListener.collision_list.pop()
         
-        # Check if a collision with a static body
-        if fixtureA.userData is None or fixtureB.userData is None:
-            continue
+        # Compute new biscuit position
+        position = (biscuit.body.position - puck.body.position)
+        position.Normalize()
+        position = position * (puck.shape.radius + biscuit.shape.radius)
 
-        names = {fixtureA.userData.name : fixtureA, fixtureB.userData.name : fixtureB}
-        keys = list(names.keys())
+        # Create new biscuit fixture
+        new_biscuit = puck.body.CreateCircleFixture(radius=biscuit.shape.radius, pos=position, userData=biscuit.userData)
+        new_biscuit.sensor = True
 
-        # Determine if collision between puck and biscuit
-        if any(["puck" in x for x in keys]) and any(["biscuit" in x for x in keys]):
-            puck = names[min(keys, key=len)]
-            biscuit = names[max(keys, key=len)]
-            
-            position = (biscuit.body.position - puck.body.position)
-            position.Normalize()
-            position = position * (puck.shape.radius + biscuit.shape.radius)
-
-            new_biscuit = puck.body.CreateCircleFixture(radius=biscuit.shape.radius, pos=position, userData=biscuit.userData)
-            new_biscuit.sensor = True
-
-            biscuit_bodies.remove(biscuit.body)
-            render_bodies.remove(biscuit.body)
-            world.DestroyBody(biscuit.body)
-
-            # Reverse the impulse applied as a result of the collision
-            # puck.body.ApplyLinearImpulse(vec2(-impulses[0], -impulses[1]), puck.body.position, wake=True)
-
-            # print(puck.body.linearVelocity)
-            # puck.body.linearVelocity = (0, 0)
+        # Remove old biscuit body
+        biscuit_bodies.remove(biscuit.body)
+        render_bodies.remove(biscuit.body)
+        world.DestroyBody(biscuit.body)
 
     # Flip the screen and try to keep at the target FPS
     pygame.display.flip()
