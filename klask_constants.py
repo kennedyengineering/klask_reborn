@@ -50,7 +50,7 @@ KG_DIVIDER_WIDTH = 0.015875
 
 # Magnets
 KG_PERMEABILITY_AIR = 1.25663753e10-6   # (H/m)
-KG_MAGNETIC_CHARGE = 0.0005             # (A/m)
+KG_MAGNETIC_CHARGE = 0.00002            # (A/m)
 
 # Gravity
 KG_GRAVITY = 9.80665
