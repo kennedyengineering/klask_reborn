@@ -159,11 +159,30 @@ def draw_circle_fixture(circle, pixels_per_meter, surface):
 
 # --- game state methods ---
 def is_body_in_goal(body):
-    return dist(body.position, (KG_GOAL_OFFSET_X * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER or \
-        dist(body.position, ((KG_BOARD_WIDTH - KG_GOAL_OFFSET_X) * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER
+    # return 0 for no, return 1 for left goal, return 2 for right goal
+
+    if dist(body.position, (KG_GOAL_OFFSET_X * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER:
+        return 1
+    if dist(body.position, ((KG_BOARD_WIDTH - KG_GOAL_OFFSET_X) * LENGTH_SCALER, (KG_BOARD_HEIGHT / 2) * LENGTH_SCALER)) <= KG_GOAL_RADIUS * LENGTH_SCALER:
+        return 2
+    
+    return 0
 
 def num_biscuits_on_puck(puck_body):
     return len(puck_body.fixtures) - 1
+
+def determine_game_state(puck1_body, puck2_body, ball_body):
+    # return 0 for "play" state, 1 for "puck_1 win" state, 2 for "puck_2 win" state
+
+    # Determine puck_1 win conditions
+    if is_body_in_goal(puck2_body) or is_body_in_goal(ball_body) == 2 or num_biscuits_on_puck(puck2_body) >= 2:
+        return 1
+
+    # Determine puck_2 win conditions
+    if is_body_in_goal(puck1_body) or is_body_in_goal(ball_body) == 1 or num_biscuits_on_puck(puck1_body) >= 2:
+        return 2
+
+    return 0
 
 # --- main game loop ---
 game_board = render_game_board(PPM * LENGTH_SCALER)
