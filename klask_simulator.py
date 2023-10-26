@@ -139,7 +139,7 @@ class KlaskSimulator():
         # Handle puck to biscuit collisions
         while self.world.contactListener.collision_list:
             # Retrieve fixtures
-            puck, biscuit = world.contactListener.collision_list.pop()
+            puck, biscuit = self.world.contactListener.collision_list.pop()
             
             # Compute new biscuit position
             position = (biscuit.body.position - puck.body.position)
@@ -151,9 +151,9 @@ class KlaskSimulator():
             new_biscuit.sensor = True
 
             # Remove old biscuit body
-            self.magnet_bodies.remove(biscuit.body.userData.name)
-            self.render_bodies.remove(biscuit.body.userDate.name)
-            world.DestroyBody(biscuit.body)
+            self.magnet_bodies.remove(biscuit.userData.name)
+            self.render_bodies.remove(biscuit.userData.name)
+            self.world.DestroyBody(biscuit.body)
 
         # Render the resulting frame
         self.__render_frame()
