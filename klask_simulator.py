@@ -121,12 +121,12 @@ class KlaskSimulator():
         # Render frame
         self.__render_frame()
 
-    def step(self, actions):
+    def step(self, action1, action2):
         # Apply forces to puck1
-        pass
+        self.bodies["puck1"].ApplyLinearImpulse(action1, self.bodies["puck1"].position, wake=True)
 
         # Apply forces to puck2
-        pass
+        self.bodies["puck2"].ApplyLinearImpulse(action2, self.bodies["puck2"].position, wake=True)
 
         # Apply magnetic forces to biscuits
         for body_key in self.magnet_bodies:
