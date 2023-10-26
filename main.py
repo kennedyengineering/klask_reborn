@@ -11,7 +11,6 @@ from Box2D.b2 import (world, edgeShape, vec2, pi, contactListener)
 from klask_render import render_game_board
 from klask_constants import *
 
-# TODO: generate game states
 # TODO: prevent force from ball applied on puck, but keep force of puck on ball?
 
 # --- constants ---
