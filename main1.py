@@ -1,6 +1,6 @@
 from klask_simulator import KlaskSimulator
 
-sim = KlaskSimulator(render_mode="")
+sim = KlaskSimulator(render_mode="human")
 
 sim.reset()
 

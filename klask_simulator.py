@@ -248,6 +248,7 @@ class KlaskSimulator():
         if self.render_mode == "human":
             # Display surface to screen
             self.screen.blit(surface, (0,0))
+            pygame.event.pump()
             pygame.display.flip()
 
             # Manage frame rate
