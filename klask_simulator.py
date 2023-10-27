@@ -65,8 +65,8 @@ class KlaskSimulator():
 
         # PyGame variables
         self.screen = None
-        self.game_board = None
         self.clock = None
+        self.game_board = None
 
         # Box2D variables
         self.world = None
