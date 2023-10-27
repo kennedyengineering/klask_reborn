@@ -1,8 +1,10 @@
+from enum import unique, Enum
 from klask_constants import *
 
 from Box2D.b2 import contactListener, world, edgeShape, pi
 from dataclasses import dataclass
 from random import choice
+from math import dist
 
 import pygame
 
@@ -11,6 +13,12 @@ class KlaskSimulator():
     class FixtureUserData:
         name: str
         color: tuple
+
+    @unique
+    class GameStates(Enum):
+        PLAYING = 0
+        P1_WIN = 1
+        P2_WIN = 2
 
     class KlaskContactListener(contactListener):
         def __init__(self):
@@ -45,8 +53,8 @@ class KlaskSimulator():
     def __init__(self, render_mode="human", length_scaler=100, pixels_per_meter=20, target_fps=120):
         # Store user parameters
         self.render_mode = render_mode
-        self.length_scaler = length_scaler
-        self.pixels_per_meter = pixels_per_meter
+        self.length_scaler = length_scaler          # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
+        self.pixels_per_meter = pixels_per_meter    # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
         self.target_fps = target_fps
 
         # Compute additional parameters
@@ -136,7 +144,7 @@ class KlaskSimulator():
         # Step the physics simulation
         self.world.Step(self.time_step, 10, 10)
 
-        # Handle puck to biscuit collisions
+        # Handle resultant puck to biscuit collisions
         while self.world.contactListener.collision_list:
             # Retrieve fixtures
             puck, biscuit = self.world.contactListener.collision_list.pop()
@@ -159,7 +167,47 @@ class KlaskSimulator():
         self.__render_frame()
 
         # Update game states
-        pass
+        states = self.__determine_game_state()
+
+    def __determine_game_state(self):
+        # Determines the state of the game
+        states = []
+
+        # Determine puck 1 win conditions
+        if self.__is_in_goal(self.bodies["puck2"])[1] or self.__is_in_goal(self.bodies["ball"])[1] or self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2:
+            states.append(self.GameStates.P1_WIN)
+            print("p1 win")
+        
+        # Determine puck 2 win conditions
+        if self.__is_in_goal(self.bodies["puck1"])[0] or self.__is_in_goal(self.bodies["ball"])[0] or self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2:
+            states.append(self.GameStates.P2_WIN)
+            print("p2 win")
+
+        # Determine if win condition was met
+        if not len(states):
+            states.append(self.GameStates.PLAYING)
+
+        return states
+
+    def __num_biscuits_on_puck(self, puck_body):
+        # Get the number of biscuits attached to a puck
+        return len(puck_body.fixtures) - 1
+    
+    def __is_in_goal(self, body):
+        # Determine if the puck/ball/biscuit is inside the goal
+
+        # Define return type, idx 0 is left goal, idx 1 is right goal
+        response = [False, False]
+        
+        # Determine if body in left goal
+        if dist(body.position, (KG_GOAL_OFFSET_X * self.length_scaler, (KG_BOARD_HEIGHT / 2) * self.length_scaler)) <= KG_GOAL_RADIUS * self.length_scaler:
+            response[0] = True
+    
+        # Determine if body in right goal
+        if dist(body.position, ((KG_BOARD_WIDTH - KG_GOAL_OFFSET_X) * self.length_scaler, (KG_BOARD_HEIGHT / 2) * self.length_scaler)) <= KG_GOAL_RADIUS * self.length_scaler:
+            response[1] = True
+    
+        return response
 
     def __apply_magnet_force(self, puck_body, biscuit_body):
         # Get the distance vector between the two bodies
