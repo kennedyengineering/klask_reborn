@@ -176,12 +176,10 @@ class KlaskSimulator():
         # Determine puck 1 win conditions
         if self.__is_in_goal(self.bodies["puck2"])[1] or self.__is_in_goal(self.bodies["ball"])[1] or self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2:
             states.append(self.GameStates.P1_WIN)
-            print("p1 win")
         
         # Determine puck 2 win conditions
         if self.__is_in_goal(self.bodies["puck1"])[0] or self.__is_in_goal(self.bodies["ball"])[0] or self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2:
             states.append(self.GameStates.P2_WIN)
-            print("p2 win")
 
         # Determine if win condition was met
         if not len(states):
