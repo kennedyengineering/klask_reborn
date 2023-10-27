@@ -1,4 +1,4 @@
-# Demonstrates two methods of input for human players
+# Demonstrates a method of input for human players
 
 from klask_simulator import KlaskSimulator
 
