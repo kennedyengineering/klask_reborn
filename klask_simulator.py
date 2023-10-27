@@ -5,6 +5,7 @@ from Box2D.b2 import contactListener, world, edgeShape, pi
 from dataclasses import dataclass
 from random import choice
 from math import dist
+from PIL import Image
 
 import pygame
 
@@ -52,7 +53,7 @@ class KlaskSimulator():
 
     def __init__(self, render_mode="human", length_scaler=100, pixels_per_meter=20, target_fps=120):
         # Store user parameters
-        self.render_mode = render_mode
+        self.render_mode = render_mode              # "human" shows the rendered frame at the specificed frame rate. 
         self.length_scaler = length_scaler          # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter    # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
         self.target_fps = target_fps
@@ -224,6 +225,7 @@ class KlaskSimulator():
         # Setup PyGame if needed
         if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+            pygame.display.set_caption('Klask Simulator')
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()
 
@@ -283,7 +285,8 @@ class KlaskSimulator():
         pygame.draw.circle(surface, KG_BISCUIT_START_COLOR, ((KG_BOARD_WIDTH / 2) * self.pixels_per_meter * self.length_scaler, ((KG_BOARD_HEIGHT / 2) + KG_BISCUIT_START_OFFSET_Y) * self.pixels_per_meter * self.length_scaler), KG_BISCUIT_START_RADIUS * self.pixels_per_meter * self.length_scaler, int(KG_BISCUIT_START_THICKNESS * self.pixels_per_meter * self.length_scaler))
 
         # Render Game Board Logo
-        logo = pygame.image.load(KG_BOARD_LOGO_PATH).convert_alpha()
+        pil_image = Image.open(KG_BOARD_LOGO_PATH)
+        logo = pygame.image.fromstring(pil_image.tobytes("raw", "RGBA"), pil_image.size, "RGBA")
         logo = pygame.transform.scale(logo, (KG_BOARD_LOGO_WIDTH * self.pixels_per_meter * self.length_scaler, KG_BOARD_LOGO_HEIGHT * self.pixels_per_meter * self.length_scaler))
 
         logo_right = pygame.transform.rotate(logo, 90)
