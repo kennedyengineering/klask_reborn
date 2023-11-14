@@ -137,10 +137,10 @@ class KlaskSimulator():
         game_states = self.__determine_game_state()
 
         # Determine agent states
-        # TODO
+        agent_states = self.__determine_agent_state()
 
         # Return environment state information
-        return frame, game_states
+        return frame, game_states, agent_states
 
     def step(self, action1, action2):
         # Apply forces to puck1
@@ -174,6 +174,7 @@ class KlaskSimulator():
             # Remove old biscuit body
             self.magnet_bodies.remove(biscuit.userData.name)
             self.render_bodies.remove(biscuit.userData.name)
+            del self.bodies[biscuit.userData.name]
             self.world.DestroyBody(biscuit.body)
 
         # Render the resulting frame
@@ -183,10 +184,87 @@ class KlaskSimulator():
         game_states = self.__determine_game_state()
 
         # Determine agent states
-        # TODO
+        agent_states = self.__determine_agent_state()
 
         # Return environment state information
-        return frame, game_states
+        return frame, game_states, agent_states
+
+    def __determine_agent_state(self):
+        # Creates a state vector of all the agents in the environment
+
+        def __get_biscuit_state(biscuit_name):
+            # Get biscuit states
+            biscuit_pos_x = biscuit_pos_y = biscuit_vel_x = biscuit_vel_y = None
+            if biscuit_name in self.bodies:
+                biscuit_pos_x = self.bodies[biscuit_name].position.x
+                biscuit_pos_y = self.bodies[biscuit_name].position.y
+                biscuit_vel_x = self.bodies[biscuit_name].linearVelocity.x
+                biscuit_vel_y = self.bodies[biscuit_name].linearVelocity.y
+            else:
+                # Find fixture with userData.name == biscuit1
+                fixture = next(obj for obj in [next((obj for obj in self.bodies["puck1"].fixtures if obj.userData.name == biscuit_name), None), next((obj for obj in self.bodies["puck2"].fixtures if obj.userData.name == biscuit_name), None)] if obj is not None)
+                biscuit_pos_x = fixture.body.position.x + fixture.shape.pos.x
+                biscuit_pos_y = fixture.body.position.y + fixture.shape.pos.y
+                biscuit_vel_x = fixture.body.linearVelocity.x
+                biscuit_vel_y = fixture.body.linearVelocity.y
+            
+            return biscuit_pos_x, biscuit_pos_y, biscuit_vel_x, biscuit_vel_y
+
+        # Get biscuit 1 states
+        biscuit1_pos_x, biscuit1_pos_y, biscuit1_vel_x, biscuit1_vel_y = __get_biscuit_state("biscuit1")
+
+        # Get biscuit 2 states
+        biscuit2_pos_x, biscuit2_pos_y, biscuit2_vel_x, biscuit2_vel_y = __get_biscuit_state("biscuit2")
+
+        # Get biscuit 3 states
+        biscuit3_pos_x, biscuit3_pos_y, biscuit3_vel_x, biscuit3_vel_y = __get_biscuit_state("biscuit3")
+
+        # Get puck 1 states
+        puck1_pos_x = self.bodies["puck1"].position.x
+        puck1_pos_y = self.bodies["puck1"].position.y
+        puck1_vel_x = self.bodies["puck1"].linearVelocity.x
+        puck1_vel_y = self.bodies["puck1"].linearVelocity.y
+
+        # Get puck 2 states
+        puck2_pos_x = self.bodies["puck2"].position.x
+        puck2_pos_y = self.bodies["puck2"].position.y
+        puck2_vel_x = self.bodies["puck2"].linearVelocity.x
+        puck2_vel_y = self.bodies["puck2"].linearVelocity.y
+
+        # Get ball states
+        ball_pos_x = self.bodies["ball"].position.x
+        ball_pos_y = self.bodies["ball"].position.y
+        ball_vel_x = self.bodies["ball"].linearVelocity.x
+        ball_vel_y = self.bodies["ball"].linearVelocity.y
+
+        # Create state vector
+        state_vector = (biscuit1_pos_x,
+                        biscuit1_pos_y,
+                        biscuit1_vel_x,
+                        biscuit1_vel_y,
+                        biscuit2_pos_x,
+                        biscuit2_pos_y,
+                        biscuit2_vel_x,
+                        biscuit2_vel_y,
+                        biscuit3_pos_x,
+                        biscuit3_pos_y,
+                        biscuit3_vel_x,
+                        biscuit3_vel_y,
+                        puck1_pos_x,
+                        puck1_pos_y,
+                        puck1_vel_x,
+                        puck1_vel_y,
+                        puck2_pos_x,
+                        puck2_pos_y,
+                        puck2_vel_x,
+                        puck2_vel_y,
+                        ball_pos_x,
+                        ball_pos_y,
+                        ball_vel_x,
+                        ball_vel_y
+                        )
+        
+        return state_vector
 
     def __determine_game_state(self):
         # Determines the state of the game
@@ -265,6 +343,15 @@ class KlaskSimulator():
         for body_key in self.render_bodies:
             for fixture in self.bodies[body_key]:
                 self.__render_circle_fixture(fixture, surface)
+
+        # FIXME temp
+        states = self.__determine_agent_state()
+        pygame.draw.circle(surface, (255,255,255), (int(states[0] * self.pixels_per_meter), int(self.screen_height - states[1] * self.pixels_per_meter)), 2)
+        pygame.draw.circle(surface, (255,255,255), (int(states[4] * self.pixels_per_meter), int(self.screen_height - states[5] * self.pixels_per_meter)), 2)
+        pygame.draw.circle(surface, (255,255,255), (int(states[8] * self.pixels_per_meter), int(self.screen_height - states[9] * self.pixels_per_meter)), 2)
+        pygame.draw.circle(surface, (255,255,255), (int(states[12] * self.pixels_per_meter), int(self.screen_height - states[13] * self.pixels_per_meter)), 2)
+        pygame.draw.circle(surface, (255,255,255), (int(states[16] * self.pixels_per_meter), int(self.screen_height - states[17] * self.pixels_per_meter)), 2)
+        pygame.draw.circle(surface, (255,255,255), (int(states[20] * self.pixels_per_meter), int(self.screen_height - states[21] * self.pixels_per_meter)), 2)
 
         # Display to screen if needed
         if self.render_mode == "human":
