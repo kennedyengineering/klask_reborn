@@ -238,6 +238,7 @@ class KlaskSimulator():
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
         # Create state vector
+        # TODO scale by pixels per meter? normalize?
         state_vector = (biscuit1_pos_x,
                         biscuit1_pos_y,
                         biscuit1_vel_x,
@@ -343,15 +344,6 @@ class KlaskSimulator():
         for body_key in self.render_bodies:
             for fixture in self.bodies[body_key]:
                 self.__render_circle_fixture(fixture, surface)
-
-        # FIXME temp
-        states = self.__determine_agent_state()
-        pygame.draw.circle(surface, (255,255,255), (int(states[0] * self.pixels_per_meter), int(self.screen_height - states[1] * self.pixels_per_meter)), 2)
-        pygame.draw.circle(surface, (255,255,255), (int(states[4] * self.pixels_per_meter), int(self.screen_height - states[5] * self.pixels_per_meter)), 2)
-        pygame.draw.circle(surface, (255,255,255), (int(states[8] * self.pixels_per_meter), int(self.screen_height - states[9] * self.pixels_per_meter)), 2)
-        pygame.draw.circle(surface, (255,255,255), (int(states[12] * self.pixels_per_meter), int(self.screen_height - states[13] * self.pixels_per_meter)), 2)
-        pygame.draw.circle(surface, (255,255,255), (int(states[16] * self.pixels_per_meter), int(self.screen_height - states[17] * self.pixels_per_meter)), 2)
-        pygame.draw.circle(surface, (255,255,255), (int(states[20] * self.pixels_per_meter), int(self.screen_height - states[21] * self.pixels_per_meter)), 2)
 
         # Display to screen if needed
         if self.render_mode == "human":
