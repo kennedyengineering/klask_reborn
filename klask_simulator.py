@@ -238,7 +238,6 @@ class KlaskSimulator():
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
         # Create state vector
-        # TODO scale by pixels per meter? normalize?
         state_vector = (biscuit1_pos_x,
                         biscuit1_pos_y,
                         biscuit1_vel_x,
