@@ -302,3 +302,6 @@ class KlaskSimulator():
     def close(self):
         if self.screen is not None:
             pygame.quit()
+
+if __name__ == "__main__":
+    pass
