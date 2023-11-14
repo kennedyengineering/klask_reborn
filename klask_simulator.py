@@ -53,7 +53,10 @@ class KlaskSimulator():
 
     def __init__(self, render_mode="human", length_scaler=100, pixels_per_meter=20, target_fps=120):
         # Store user parameters
-        self.render_mode = render_mode              # "human" shows the rendered frame at the specificed frame rate. 
+        self.render_modes = ["human", "frame", "headless"]  # "human" shows the rendered frame at the specificed frame rate. 
+        assert render_mode in self.render_modes             # "frame" renders frame, but does not display it.
+        self.render_mode = render_mode                      # "headless" does not render frame.
+
         self.length_scaler = length_scaler          # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter    # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
         self.target_fps = target_fps
@@ -128,7 +131,16 @@ class KlaskSimulator():
         self.world.CreateFrictionJoint(bodyA=self.bodies["ground"], bodyB=self.bodies["biscuit3"], maxForce=self.bodies["biscuit3"].mass*KG_GRAVITY)
 
         # Render frame
-        self.__render_frame()
+        frame = self.__render_frame()
+
+        # Determine game states
+        game_states = self.__determine_game_state()
+
+        # Determine agent states
+        # TODO
+
+        # Return environment state information
+        return frame, game_states
 
     def step(self, action1, action2):
         # Apply forces to puck1
@@ -165,10 +177,16 @@ class KlaskSimulator():
             self.world.DestroyBody(biscuit.body)
 
         # Render the resulting frame
-        self.__render_frame()
+        frame = self.__render_frame()
 
-        # Update game states
-        states = self.__determine_game_state()
+        # Determine game states
+        game_states = self.__determine_game_state()
+
+        # Determine agent states
+        # TODO
+
+        # Return environment state information
+        return frame, game_states
 
     def __determine_game_state(self):
         # Determines the state of the game
@@ -222,6 +240,10 @@ class KlaskSimulator():
         biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
     def __render_frame(self):
+        # Determine if headless mode
+        if self.render_mode == "headless":
+            return None
+        
         # Setup PyGame if needed
         if self.screen is None and self.render_mode == "human":
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
