@@ -18,21 +18,24 @@ class KlaskEnv(gym.Env):
         super().__init__()
 
         # Using continuous actions:
-        self.action_space = spaces.Box(low=np.array([-1.0, -1.0]), 
-                                      high=np.array([1.0, 1.0]), 
-                                      dtype=np.float32)
-        
+        self.action_space = spaces.Box(
+            low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
+        )
+
         # Using image as input (channel-first; channel-last also works):
-        self.observation_space = spaces.Box(low=0, high=255,
-                                            shape=(3, 609, 787), dtype=np.uint8)
-        
+        self.observation_space = spaces.Box(
+            low=0, high=255, shape=(3, 609, 787), dtype=np.uint8
+        )
+
         assert render_mode in self.metadata["render_modes"]
         self.sim = KlaskSimulator(render_mode=render_mode)
 
     def step(self, action):
         # Apply the action to the environment
         assert self.action_space.contains(action), "Invalid action"
-        frame, game_states, agent_states = self.sim.step((action[0] * MAX_FORCE, action[1] * MAX_FORCE), (0.0, 0.0))
+        frame, game_states, agent_states = self.sim.step(
+            (action[0] * MAX_FORCE, action[1] * MAX_FORCE), (0.0, 0.0)
+        )
         observation = np.moveaxis(frame, -1, 0)
 
         # Compute the reward
@@ -46,7 +49,7 @@ class KlaskEnv(gym.Env):
         if KlaskSimulator.GameStates.PLAYING in game_states:
             # Reward for staying alive
             reward += 0.1
-        
+
         # Check if episode is done
         terminated = truncated = not KlaskSimulator.GameStates.PLAYING in game_states
 
@@ -62,7 +65,7 @@ class KlaskEnv(gym.Env):
         # Reset simulator
         frame, game_states, agent_states = self.sim.reset()
         observation = np.moveaxis(frame, -1, 0)
-        
+
         info = {}
         return observation, info
 

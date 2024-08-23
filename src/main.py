@@ -4,7 +4,8 @@ from klask_simulator import KlaskSimulator
 
 import pygame
 
-class KeyboardController():
+
+class KeyboardController:
     __position_x = 0
     __position_y = 0
 
@@ -38,6 +39,7 @@ class KeyboardController():
     def keyRight_released(self):
         self.__position_x -= 1
 
+
 # Initialize the simulator
 sim = KlaskSimulator(render_mode="human")
 
@@ -53,7 +55,9 @@ running = True
 while running:
     # Check the event queue (only accessable if render_mode="human", is optional)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT or (
+            event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
+        ):
             # The user closed the window or pressed escape
             running = False
 
