@@ -53,9 +53,10 @@ class KlaskSimulator():
 
     def __init__(self, render_mode="human", length_scaler=100, pixels_per_meter=20, target_fps=120):
         # Store user parameters
-        self.render_modes = ["human", "frame", "headless"]  # "human" shows the rendered frame at the specificed frame rate. 
+        self.render_modes = ["human", "human_unclocked", "frame", "headless"]  # "human" shows the rendered frame at the specificed frame rate. 
         assert render_mode in self.render_modes             # "frame" renders frame, but does not display it.
         self.render_mode = render_mode                      # "headless" does not render frame.
+                                                            # "human_unclocked" shows the rendered frame at an unspecified frame rate.
 
         self.length_scaler = length_scaler          # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter    # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
@@ -323,7 +324,7 @@ class KlaskSimulator():
             return None
         
         # Setup PyGame if needed
-        if self.screen is None and self.render_mode == "human":
+        if self.screen is None and self.render_mode in ["human", "human_unclocked"]:
             self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
             pygame.display.set_caption('Klask Simulator')
         if self.clock is None and self.render_mode == "human":
@@ -345,14 +346,15 @@ class KlaskSimulator():
                 self.__render_circle_fixture(fixture, surface)
 
         # Display to screen if needed
-        if self.render_mode == "human":
+        if self.render_mode in ["human", "human_unclocked"]:
             # Display surface to screen
             self.screen.blit(surface, (0,0))
             pygame.event.pump()
             pygame.display.flip()
 
             # Manage frame rate
-            self.clock.tick(self.target_fps)
+            if self.render_mode == "human":
+                self.clock.tick(self.target_fps)
 
         # Return rendered frame as numpy array (RGB order)
         return pygame.surfarray.array3d(surface).swapaxes(0,1)

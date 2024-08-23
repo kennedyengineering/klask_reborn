@@ -12,9 +12,9 @@ MAX_FORCE = 0.015
 class KlaskEnv(gym.Env):
     """Custom Environment that follows gym interface."""
 
-    metadata = {"render_modes": ["human", "frame", "headless"], "render_fps": 30}
+    metadata = {"render_modes": ["human", "human_unclocked", "frame"], "render_fps": 30}
 
-    def __init__(self):
+    def __init__(self, render_mode="frame"):
         super().__init__()
 
         # Using continuous actions:
@@ -26,7 +26,8 @@ class KlaskEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255,
                                             shape=(3, 609, 787), dtype=np.uint8)
         
-        self.sim = KlaskSimulator(render_mode="frame")
+        assert render_mode in self.metadata["render_modes"]
+        self.sim = KlaskSimulator(render_mode=render_mode)
 
     def step(self, action):
         # Apply the action to the environment
@@ -35,11 +36,16 @@ class KlaskEnv(gym.Env):
         observation = np.moveaxis(frame, -1, 0)
 
         # Compute the reward
-        reward = 0
+        reward = 0.0
         if KlaskSimulator.GameStates.P1_WIN in game_states:
-            reward += 1
+            # Reward for winning
+            reward += 1000.0
         if KlaskSimulator.GameStates.P2_WIN in game_states:
-            reward -= 1
+            # Reward for losing
+            reward -= 1000.0
+        if KlaskSimulator.GameStates.PLAYING in game_states:
+            # Reward for staying alive
+            reward += 0.1
         
         # Check if episode is done
         terminated = truncated = not KlaskSimulator.GameStates.PLAYING in game_states
