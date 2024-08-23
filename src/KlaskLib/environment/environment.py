@@ -3,7 +3,7 @@ import numpy as np
 import random
 from gymnasium import spaces
 
-from klask_simulator import KlaskSimulator
+from ..simulator.simulator import KlaskSimulator
 
 
 MAX_FORCE = 0.015

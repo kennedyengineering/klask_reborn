@@ -1,5 +1,5 @@
 from enum import unique, Enum
-from klask_constants import *
+from .constants import *
 
 from Box2D.b2 import contactListener, world, edgeShape, pi
 from dataclasses import dataclass

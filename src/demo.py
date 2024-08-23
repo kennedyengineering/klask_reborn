@@ -1,6 +1,6 @@
 # Demonstrates a method of input for human players
 
-from klask_simulator import KlaskSimulator
+from KlaskLib.simulator.simulator import KlaskSimulator
 
 import pygame
 

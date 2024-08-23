@@ -4,6 +4,11 @@
 # Distance is Meters
 # Color is RGB
 
+# Filesystem
+from os.path import dirname, join
+
+KG_ASSETS_DIR = join(dirname(__file__), "assets")
+
 # Puck
 KG_PUCK_MASS = 0.008
 KG_PUCK_RADIUS = 0.0075
@@ -25,7 +30,7 @@ KG_BOARD_HEIGHT = 0.3048
 KG_BOARD_COLOR = 14, 40, 117
 
 # Game Board Logo
-KG_BOARD_LOGO_PATH = "src/images/KLASK_LOGO_RECOLORED.png"
+KG_BOARD_LOGO_PATH = join(KG_ASSETS_DIR, "KLASK_LOGO_RECOLORED.png")
 KG_BOARD_LOGO_WIDTH = 0.0889
 KG_BOARD_LOGO_HEIGHT = 0.0381
 
