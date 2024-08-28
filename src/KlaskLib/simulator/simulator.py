@@ -9,7 +9,7 @@ from math import dist
 from PIL import Image
 
 # TODO: check that random is seedable
-from random import choice
+import random
 
 # TODO: move to make vectorizable environment
 import pygame
@@ -103,8 +103,12 @@ class KlaskSimulator:
         self.magnet_bodies = None
         self.render_bodies = None
 
-    # TODO: require seed as argument, for random operations
-    def reset(self, ball_start_position="random"):
+    def reset(self, seed=None, ball_start_position="random"):
+
+        # Set random seed
+        if seed:
+            random.seed(seed)
+
         # Create world
         self.world = world(
             contactListener=self.KlaskContactListener(), gravity=(0, 0), doSleep=True
@@ -243,7 +247,9 @@ class KlaskSimulator:
                 KG_CORNER_RADIUS * self.length_scaler / 2,
             ),
         }
-        ball_start_positions["random"] = choice(list(ball_start_positions.values()))
+        ball_start_positions["random"] = random.choice(
+            list(ball_start_positions.values())
+        )
 
         self.bodies["ball"] = self.world.CreateDynamicBody(
             position=ball_start_positions[ball_start_position], bullet=True
