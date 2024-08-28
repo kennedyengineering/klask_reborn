@@ -59,6 +59,14 @@ class KlaskSimulator:
                 # Mark biscuit for deletion
                 self.collision_list.append((puck, biscuit))
 
+    ball_start_positions = [
+        "top_right",  # Place the ball in the top right corner at game start
+        "bottom_right",  # Place the ball in the bottom right corner at game start
+        "top_left",  # Place the ball in the top left corner at game start
+        "bottom_left",  # Place the ball in the bottom left corner at game start
+        "random",  # Place the ball in a random corner at game start
+    ]
+
     render_modes = [
         "human",  # "human" shows the rendered frame at the specified frame rate.
         "human_unclocked",  # "human_unclocked" shows the rendered frame at an unbounded frame rate.
@@ -104,6 +112,9 @@ class KlaskSimulator:
         # Set random seed
         if seed:
             random.seed(seed)
+
+        # Validate ball start position
+        assert ball_start_position in self.ball_start_positions
 
         # Create world
         self.world = world(
@@ -219,9 +230,7 @@ class KlaskSimulator:
             density=KG_PUCK_MASS / (pi * (KG_PUCK_RADIUS * self.length_scaler) ** 2),
         )
 
-        # TODO: add assert: ball_start_position in ball_start_positions
-        # TODO: add start positions to metadata? should be query-able before running this method
-        ball_start_positions = {
+        ball_start_positions_dict = {
             "top_right": (
                 KG_BOARD_WIDTH * self.length_scaler
                 - KG_CORNER_RADIUS * self.length_scaler / 2,
@@ -243,12 +252,12 @@ class KlaskSimulator:
                 KG_CORNER_RADIUS * self.length_scaler / 2,
             ),
         }
-        ball_start_positions["random"] = random.choice(
-            list(ball_start_positions.values())
+        ball_start_positions_dict["random"] = random.choice(
+            list(ball_start_positions_dict.values())
         )
 
         self.bodies["ball"] = self.world.CreateDynamicBody(
-            position=ball_start_positions[ball_start_position], bullet=True
+            position=ball_start_positions_dict[ball_start_position], bullet=True
         )
         self.bodies["ball"].CreateCircleFixture(
             radius=KG_BALL_RADIUS * self.length_scaler,
