@@ -605,7 +605,7 @@ class KlaskSimulator:
     # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
     def __render_frame(self):
         # Determine if rendering enabled
-        if self.render_mode:
+        if self.render_mode is None:
             return None
 
         # Setup PyGame if needed
