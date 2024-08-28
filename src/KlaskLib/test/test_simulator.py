@@ -134,3 +134,11 @@ def test_simulator_render_mode_human():
     assert sim.clock is not None
 
     assert isinstance(frame, ndarray)
+
+
+def test_simulator_ball_start_position_metadata():
+    """
+    Determine if ball_start_positions exists as class metadata
+    """
+
+    assert hasattr(KlaskSimulator, "ball_start_positions")
