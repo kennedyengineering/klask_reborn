@@ -9,7 +9,6 @@ def test_simulator_random_seed():
     # TODO: change render_mode to None (should be default at some point)
     sim = KlaskSimulator(render_mode="headless")
 
-    seed = 10
     iter = 15
     prev_states = []
     for _ in range(iter):
