@@ -6,8 +6,7 @@ def test_simulator_random_seed():
     Determine if setting a random seed results in deterministic starting states
     """
 
-    # TODO: change render_mode to None (should be default at some point)
-    sim = KlaskSimulator(render_mode="headless")
+    sim = KlaskSimulator(render_mode=None)
 
     iter = 15
     prev_states = []
@@ -26,8 +25,7 @@ def test_simulator_random_no_seed():
     Determine if not setting a random seed results in random starting states
     """
 
-    # TODO: change render_mode to None (should be default at some point)
-    sim = KlaskSimulator(render_mode="headless")
+    sim = KlaskSimulator(render_mode=None)
 
     iter = 15
     prev_states = []
