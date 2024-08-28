@@ -354,6 +354,8 @@ class KlaskSimulator:
         return frame, game_states, agent_states
 
     def step(self, action1, action2):
+        # TODO: add check that reset() is called before step()
+
         # TODO: add assertion check to action1 type
         # Apply forces to puck1
         self.bodies["puck1"].ApplyLinearImpulse(
