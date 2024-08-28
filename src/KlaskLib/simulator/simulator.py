@@ -8,7 +8,6 @@ from enum import unique, Enum
 from math import dist
 from PIL import Image
 
-# TODO: check that random is seedable
 import random
 
 # TODO: move to make vectorizable environment
