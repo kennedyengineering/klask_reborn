@@ -1,8 +1,12 @@
 from enum import unique, Enum
+
+# FIXME: remove import *
 from .constants import *
 
 from Box2D.b2 import contactListener, world, edgeShape, pi
 from dataclasses import dataclass
+
+# TODO: check that random is seedable
 from random import choice
 from math import dist
 from PIL import Image
@@ -62,16 +66,17 @@ class KlaskSimulator:
         pixels_per_meter=20,
         target_fps=120,
     ):
+        # FIXME: move render_modes to metadata, should be queryable before initialization
         # Store user parameters
         self.render_modes = [
             "human",
-            "human_unclocked",
-            "frame",
-            "headless",
+            "human_unclocked",  # TODO: determine better name
+            "frame",  # FIXME: change to rgb_array
+            "headless",  # FIXME: remove, descibe via none type behaviour
         ]  # "human" shows the rendered frame at the specificed frame rate.
-        assert (
-            render_mode in self.render_modes
-        )  # "frame" renders frame, but does not display it.
+        assert render_mode in self.render_modes
+        # FIXME: move comments to be be adjacent to render_modes
+        # "frame" renders frame, but does not display it.
         self.render_mode = render_mode  # "headless" does not render frame.
         # "human_unclocked" shows the rendered frame at an unspecified frame rate.
 
@@ -97,6 +102,7 @@ class KlaskSimulator:
         self.magnet_bodies = None
         self.render_bodies = None
 
+    # TODO: require seed as argument, for random operations
     def reset(self, ball_start_position="random"):
         # Create world
         self.world = world(
@@ -212,6 +218,8 @@ class KlaskSimulator:
             density=KG_PUCK_MASS / (pi * (KG_PUCK_RADIUS * self.length_scaler) ** 2),
         )
 
+        # TODO: add assert: ball_start_position in ball_start_positions
+        # TODO: add start positions to metadata? should be query-able before running this method
         ball_start_positions = {
             "top_right": (
                 KG_BOARD_WIDTH * self.length_scaler
@@ -343,11 +351,13 @@ class KlaskSimulator:
         return frame, game_states, agent_states
 
     def step(self, action1, action2):
+        # TODO: add assertion check to action1 type
         # Apply forces to puck1
         self.bodies["puck1"].ApplyLinearImpulse(
             action1, self.bodies["puck1"].position, wake=True
         )
 
+        # TODO: add assertion check to action2 type
         # Apply forces to puck2
         self.bodies["puck2"].ApplyLinearImpulse(
             action2, self.bodies["puck2"].position, wake=True
@@ -358,6 +368,8 @@ class KlaskSimulator:
             self.__apply_magnet_force(self.bodies["puck1"], self.bodies[body_key])
             self.__apply_magnet_force(self.bodies["puck2"], self.bodies[body_key])
 
+        # TODO: add names to mystery constants, make configurable
+        # FIXME: disassociate display time_step with physics time_step?
         # Step the physics simulation
         self.world.Step(self.time_step, 10, 10)
 
@@ -366,6 +378,8 @@ class KlaskSimulator:
             # Retrieve fixtures
             puck, biscuit = self.world.contactListener.collision_list.pop()
 
+            # TODO: Verify distance from puck to biscuit is always the same after collision
+            # TODO: Verify biscuit never has a negative position, or position greater than the width of the board
             # Compute new biscuit position
             position = biscuit.body.position - puck.body.position
             position.Normalize()
@@ -470,6 +484,8 @@ class KlaskSimulator:
         ball_vel_x = self.bodies["ball"].linearVelocity.x
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
+        # TODO: return as dict
+        # TODO: document units, and coordinate frame
         # Create state vector
         state_vector = (
             biscuit1_pos_x,
@@ -500,6 +516,8 @@ class KlaskSimulator:
 
         return state_vector
 
+    # TODO: place below __num_biscuits_on_puck and __is_in_goal
+    # TODO: add more descriptive game states, ex: in addition to win/lose, tell how --> goal scored, or 2x biscuits attached?
     def __determine_game_state(self):
         # Determines the state of the game
         states = []
