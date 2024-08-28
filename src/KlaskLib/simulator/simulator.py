@@ -1,16 +1,17 @@
-from enum import unique, Enum
-
-# FIXME: remove import *
-from .constants import *
+# Klask Simulator
+# 2024 Braedan Kennedy (kennedyengineering)
 
 from Box2D.b2 import contactListener, world, edgeShape, pi
+from .constants import *
 from dataclasses import dataclass
-
-# TODO: check that random is seedable
-from random import choice
+from enum import unique, Enum
 from math import dist
 from PIL import Image
 
+# TODO: check that random is seedable
+from random import choice
+
+# TODO: move to make vectorizable environment
 import pygame
 
 
