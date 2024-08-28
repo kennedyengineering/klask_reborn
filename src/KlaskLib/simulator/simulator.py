@@ -59,26 +59,23 @@ class KlaskSimulator:
                 # Mark biscuit for deletion
                 self.collision_list.append((puck, biscuit))
 
+    render_modes = [
+        "human",  # "human" shows the rendered frame at the specified frame rate.
+        "human_unclocked",  # "human_unclocked" shows the rendered frame at an unbounded frame rate.
+        "rgb_array",  # "rgb_array" renders the frame, but does not show it.
+        None,  # (default) does not render or display frame.
+    ]
+
     def __init__(
         self,
-        render_mode="human",
+        render_mode=None,
         length_scaler=100,
         pixels_per_meter=20,
         target_fps=120,
     ):
-        # FIXME: move render_modes to metadata, should be queryable before initialization
         # Store user parameters
-        self.render_modes = [
-            "human",
-            "human_unclocked",  # TODO: determine better name
-            "frame",  # FIXME: change to rgb_array
-            "headless",  # FIXME: remove, descibe via none type behaviour
-        ]  # "human" shows the rendered frame at the specificed frame rate.
         assert render_mode in self.render_modes
-        # FIXME: move comments to be be adjacent to render_modes
-        # "frame" renders frame, but does not display it.
-        self.render_mode = render_mode  # "headless" does not render frame.
-        # "human_unclocked" shows the rendered frame at an unspecified frame rate.
+        self.render_mode = render_mode
 
         self.length_scaler = length_scaler  # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter  # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
@@ -605,8 +602,8 @@ class KlaskSimulator:
 
     # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
     def __render_frame(self):
-        # Determine if headless mode
-        if self.render_mode == "headless":
+        # Determine if rendering enabled
+        if self.render_mode:
             return None
 
         # Setup PyGame if needed
