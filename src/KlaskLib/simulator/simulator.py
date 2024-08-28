@@ -603,7 +603,7 @@ class KlaskSimulator:
         # Apply forces to bodies
         biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
-    # TODO: zero-pad output frame to make dimensions even
+    # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
     def __render_frame(self):
         # Determine if headless mode
         if self.render_mode == "headless":
