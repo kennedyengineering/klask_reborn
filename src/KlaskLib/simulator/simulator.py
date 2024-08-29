@@ -516,6 +516,7 @@ class KlaskSimulator:
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
         # TODO: return as dict? maybe not -- only tuples are hashable
+        # TODO: convert into pixel coordinates?
         # TODO: document units, and coordinate frame
         # Create state vector
         state_vector = (
