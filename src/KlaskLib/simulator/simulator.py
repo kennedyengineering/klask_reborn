@@ -22,9 +22,15 @@ class KlaskSimulator:
 
     @unique
     class GameStates(Enum):
-        PLAYING = 0
-        P1_WIN = 1
-        P2_WIN = 2
+        PLAYING = 0  # Default state
+        P1_WIN = 1  # Player 1 wins point, terminal state
+        P1_SCORE = 2  # Player 1 scores goal, results in P1_WIN
+        P1_KLASK = 3  # Player 1 enters own goal, results in P2_WIN
+        P1_TWO_BISCUIT = 4  # Player 1 has contacted two biscuits, results in P2_WIN
+        P2_WIN = 5  # Player 2 wins point, terminal state
+        P2_SCORE = 6  # Player 2 scores goal, results in P2_WIN
+        P2_KLASK = 7  # Player 2 enters own goal, results in P1_WIN
+        P2_TWO_BISCUIT = 8  # Player 2 has contacted two biscuits, results in P1_WIN
 
     class KlaskContactListener(contactListener):
         def __init__(self):
@@ -541,25 +547,44 @@ class KlaskSimulator:
 
         return state_vector
 
-    # TODO: add more descriptive game states, ex: in addition to win/lose, tell how --> goal scored, or 2x biscuits attached?
     def __determine_game_state(self):
         # Determines the state of the game
         states = []
 
         # Determine puck 1 win conditions
-        if (
-            self.__is_in_goal(self.bodies["puck2"])[1]
-            or self.__is_in_goal(self.bodies["ball"])[1]
-            or self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2
-        ):
+        if self.__is_in_goal(self.bodies["ball"])[1]:
+            states.append(self.GameStates.P1_SCORE)
+
+        if self.__is_in_goal(self.bodies["puck2"])[1]:
+            states.append(self.GameStates.P2_KLASK)
+
+        if self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2:
+            states.append(self.GameStates.P2_TWO_BISCUIT)
+
+        p1_win_states = {
+            self.GameStates.P1_SCORE,
+            self.GameStates.P2_KLASK,
+            self.GameStates.P2_TWO_BISCUIT,
+        }
+        if set.intersection(p1_win_states, states):
             states.append(self.GameStates.P1_WIN)
 
         # Determine puck 2 win conditions
-        if (
-            self.__is_in_goal(self.bodies["puck1"])[0]
-            or self.__is_in_goal(self.bodies["ball"])[0]
-            or self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2
-        ):
+        if self.__is_in_goal(self.bodies["ball"])[0]:
+            states.append(self.GameStates.P2_SCORE)
+
+        if self.__is_in_goal(self.bodies["puck1"])[0]:
+            states.append(self.GameStates.P1_KLASK)
+
+        if self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2:
+            states.append(self.GameStates.P1_TWO_BISCUIT)
+
+        p2_win_states = {
+            self.GameStates.P2_SCORE,
+            self.GameStates.P1_KLASK,
+            self.GameStates.P1_TWO_BISCUIT,
+        }
+        if set.intersection(p2_win_states, states):
             states.append(self.GameStates.P2_WIN)
 
         # Determine if win condition was met
