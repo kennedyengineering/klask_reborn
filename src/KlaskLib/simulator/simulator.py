@@ -541,7 +541,6 @@ class KlaskSimulator:
 
         return state_vector
 
-    # TODO: place below __num_biscuits_on_puck and __is_in_goal
     # TODO: add more descriptive game states, ex: in addition to win/lose, tell how --> goal scored, or 2x biscuits attached?
     def __determine_game_state(self):
         # Determines the state of the game
