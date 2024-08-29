@@ -390,10 +390,11 @@ class KlaskSimulator:
             self.__apply_magnet_force(self.bodies["puck1"], self.bodies[body_key])
             self.__apply_magnet_force(self.bodies["puck2"], self.bodies[body_key])
 
-        # TODO: add names to mystery constants, make configurable
         # FIXME: disassociate display time_step with physics time_step?
         # Step the physics simulation
-        self.world.Step(self.time_step, 10, 10)
+        velocity_iterations = 10
+        position_iterations = 10
+        self.world.Step(self.time_step, velocity_iterations, position_iterations)
 
         # Handle resultant puck to biscuit collisions
         while self.world.contactListener.collision_list:
