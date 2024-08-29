@@ -96,6 +96,9 @@ class KlaskSimulator:
             KG_BOARD_HEIGHT * self.pixels_per_meter * self.length_scaler
         )
 
+        # Internal state variables
+        self.is_initialized = False
+
         # PyGame variables
         self.screen = None
         self.clock = None
@@ -350,6 +353,9 @@ class KlaskSimulator:
             maxForce=self.bodies["biscuit3"].mass * KG_GRAVITY,
         )
 
+        # Update internal state variable
+        self.is_initialized = True
+
         # Render frame
         frame = self.__render_frame()
 
@@ -363,7 +369,8 @@ class KlaskSimulator:
         return frame, game_states, agent_states
 
     def step(self, action1, action2):
-        # TODO: add check that reset() is called before step()
+        # Check that reset() is called before step()
+        assert self.is_initialized
 
         # TODO: add assertion check to action1 type
         # Apply forces to puck1
