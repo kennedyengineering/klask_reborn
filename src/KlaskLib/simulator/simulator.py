@@ -111,13 +111,12 @@ class KlaskSimulator:
         self.render_bodies = None
 
     def reset(self, seed=None, ball_start_position="random"):
+        # Validate ball start position
+        assert ball_start_position in self.ball_start_positions
 
         # Set random seed
         if seed:
             random.seed(seed)
-
-        # Validate ball start position
-        assert ball_start_position in self.ball_start_positions
 
         # Create world
         self.world = world(
