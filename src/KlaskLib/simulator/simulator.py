@@ -371,13 +371,15 @@ class KlaskSimulator:
         # Check that reset() is called before step()
         assert self.is_initialized
 
-        # TODO: add assertion check to action1 type
+        # Check action types
+        assert isinstance(action1, tuple)
+        assert isinstance(action2, tuple)
+
         # Apply forces to puck1
         self.bodies["puck1"].ApplyLinearImpulse(
             action1, self.bodies["puck1"].position, wake=True
         )
 
-        # TODO: add assertion check to action2 type
         # Apply forces to puck2
         self.bodies["puck2"].ApplyLinearImpulse(
             action2, self.bodies["puck2"].position, wake=True
