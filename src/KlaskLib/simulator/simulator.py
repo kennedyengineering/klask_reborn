@@ -409,12 +409,13 @@ class KlaskSimulator:
             # Retrieve fixtures
             puck, biscuit = self.world.contactListener.collision_list.pop()
 
-            # TODO: Verify distance from puck to biscuit is always the same after collision
             # TODO: Verify biscuit never has a negative position, or position greater than the width of the board
             # Compute new biscuit position
             position = biscuit.body.position - puck.body.position
-            position.Normalize()
-            position = position * (puck.shape.radius + biscuit.shape.radius)
+
+            # FIXME: results in a very small jump in position, but ensures the distance from puck to biscuit is always the same after collision
+            # position.Normalize()
+            # position = position * (puck.shape.radius + biscuit.shape.radius)
 
             # Create new biscuit fixture
             new_biscuit = puck.body.CreateCircleFixture(
