@@ -1,10 +1,18 @@
-# Klask Simulator
-## Game environment for the Klask Adversary AI Project
+# Klask Reborn
+## Klask Adversary AI Project
 
 ![alt text](.github/KLASK_ADVERSARY_LOGO.png)
 
-## Description
-The Klask Adversary AI project aims to develop an agent skilled enough to beat human opponents in the game of Klask. This game simulation models the physics of playing Klask as well as enforces game rules. With this simulation, an agent can learn and play the game of Klask against other agents and human opponents.
+## Goal
+The Klask Adversary AI project aims to develop a deep reinforcement learning agent skilled enough to beat human opponents in the game of [Klask](https://www.klaskgame.com/).
+
+## Repository Contents
+
+This repository contains:
+
+- **Klask Environment** models the physics of playing Klask as well as enforces game rules. With this simulation, an agent can learn and play the game of Klask against itself, other agents, and human opponents.
+
+- **Klask Agent** coming soon.
 
 ## Installation
 `./setup.sh`
@@ -13,6 +21,6 @@ The Klask Adversary AI project aims to develop an agent skilled enough to beat h
 `source .venv/bin/activate`
 
 ## Demo Application
-This application demonstrates basic interaction with the simulation.
+This application demonstrates basic interaction with the Klask Environment.
 
-`python3 src/main.py`
+`python3 src/demo.py`
