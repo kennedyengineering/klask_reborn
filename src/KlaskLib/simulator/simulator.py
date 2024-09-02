@@ -445,7 +445,7 @@ class KlaskSimulator:
         return frame, game_states, agent_states
 
     def __determine_agent_state(self):
-        # Creates a state vector of all the agents in the environment
+        # Creates a state dict of all the agents in the environment
 
         def __get_biscuit_state(biscuit_name):
             # Get biscuit states
@@ -519,38 +519,37 @@ class KlaskSimulator:
         ball_vel_x = self.bodies["ball"].linearVelocity.x
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
-        # TODO: return as dict? maybe not -- only tuples are hashable
         # TODO: convert into pixel coordinates?
         # TODO: document units, and coordinate frame
-        # Create state vector
-        state_vector = (
-            biscuit1_pos_x,
-            biscuit1_pos_y,
-            biscuit1_vel_x,
-            biscuit1_vel_y,
-            biscuit2_pos_x,
-            biscuit2_pos_y,
-            biscuit2_vel_x,
-            biscuit2_vel_y,
-            biscuit3_pos_x,
-            biscuit3_pos_y,
-            biscuit3_vel_x,
-            biscuit3_vel_y,
-            puck1_pos_x,
-            puck1_pos_y,
-            puck1_vel_x,
-            puck1_vel_y,
-            puck2_pos_x,
-            puck2_pos_y,
-            puck2_vel_x,
-            puck2_vel_y,
-            ball_pos_x,
-            ball_pos_y,
-            ball_vel_x,
-            ball_vel_y,
-        )
+        # Create state dict
+        state_dict = {
+            "biscuit1_pos_x": biscuit1_pos_x,
+            "biscuit1_pos_y": biscuit1_pos_y,
+            "biscuit1_vel_x": biscuit1_vel_x,
+            "biscuit1_vel_y": biscuit1_vel_y,
+            "biscuit2_pos_x": biscuit2_pos_x,
+            "biscuit2_pos_y": biscuit2_pos_y,
+            "biscuit2_vel_x": biscuit2_vel_x,
+            "biscuit2_vel_y": biscuit2_vel_y,
+            "biscuit3_pos_x": biscuit3_pos_x,
+            "biscuit3_pos_y": biscuit3_pos_y,
+            "biscuit3_vel_x": biscuit3_vel_x,
+            "biscuit3_vel_y": biscuit3_vel_y,
+            "puck1_pos_x": puck1_pos_x,
+            "puck1_pos_y": puck1_pos_y,
+            "puck1_vel_x": puck1_vel_x,
+            "puck1_vel_y": puck1_vel_y,
+            "puck2_pos_x": puck2_pos_x,
+            "puck2_pos_y": puck2_pos_y,
+            "puck2_vel_x": puck2_vel_x,
+            "puck2_vel_y": puck2_vel_y,
+            "ball_pos_x": ball_pos_x,
+            "ball_pos_y": ball_pos_y,
+            "ball_vel_x": ball_vel_x,
+            "ball_vel_y": ball_vel_y,
+        }
 
-        return state_vector
+        return state_dict
 
     def __determine_game_state(self):
         # Determines the state of the game

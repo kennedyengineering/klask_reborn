@@ -13,7 +13,7 @@ def test_simulator_random_seed():
     for _ in range(iter):
         _, _, agent_states = sim.reset(seed=10, ball_start_position="random")
 
-        prev_states.append(agent_states)
+        prev_states.append(tuple([*agent_states.values()]))
 
     assert len(set(prev_states)) == 1
 
@@ -30,7 +30,7 @@ def test_simulator_random_no_seed():
     for _ in range(iter):
         _, _, agent_states = sim.reset(seed=None, ball_start_position="random")
 
-        prev_states.append(agent_states)
+        prev_states.append(tuple([*agent_states.values()]))
 
     assert len(set(prev_states)) > 1
 
