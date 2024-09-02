@@ -13,6 +13,8 @@ import random
 # TODO: move to make vectorizable environment
 import pygame
 
+# TODO: remove pygame banner that appears
+
 
 class KlaskSimulator:
     @dataclass
