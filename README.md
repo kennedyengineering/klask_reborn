@@ -10,9 +10,9 @@ The Klask Adversary AI project aims to develop a deep reinforcement learning age
 
 This repository contains:
 
-- **Klask Simulator** models the physics of playing Klask as well as enforces game rules.
+- [**Klask Simulator**](src/KlaskLib/simulator/README.md) models the physics of playing Klask as well as enforces game rules.
 
-- **Klask Environment** using the simulator, an agent can learn and play the game of Klask against itself, other agents, and human opponents.
+- [**Klask Environment**](src/KlaskLib/environment/README.md) using the simulator, an agent can learn and play the game of Klask against itself, other agents, and human opponents.
 
 - **Klask Agent** coming soon.
 
