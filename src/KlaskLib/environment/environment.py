@@ -25,6 +25,10 @@ class KlaskEnv(gym.Env):
     def __init__(self, render_mode="rgb_array"):
         super().__init__()
 
+        # Initialize simulator
+        assert render_mode in self.metadata["render_modes"]
+        self.sim = KlaskSimulator(render_mode=render_mode)
+
         # Using continuous actions
         self.action_space = spaces.Box(
             low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
@@ -34,10 +38,6 @@ class KlaskEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(3, 609, 787), dtype=np.uint8
         )
-
-        # Initialize simulator
-        assert render_mode in self.metadata["render_modes"]
-        self.sim = KlaskSimulator(render_mode=render_mode)
 
     def step(self, action):
         # Apply the action to the environment
