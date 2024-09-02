@@ -74,9 +74,3 @@ class KlaskEnv(gym.Env):
 
         info = {}
         return observation, info
-
-    def render(self):
-        pass
-
-    def close(self):
-        pass
