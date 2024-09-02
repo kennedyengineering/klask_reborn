@@ -25,7 +25,7 @@ class KlaskEnv(gym.Env):
         super().__init__()
 
         # Initialize simulator
-        assert render_mode in self.metadata["render_modes"]
+        assert render_mode in self.metadata["render_modes"], "Invalid render mode"
         self.sim = KlaskSimulator(render_mode=render_mode)
 
         # Using continuous actions
