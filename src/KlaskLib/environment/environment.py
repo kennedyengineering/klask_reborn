@@ -5,6 +5,8 @@ from gymnasium import spaces
 
 from ..simulator.simulator import KlaskSimulator
 
+# TODO: Verify biscuit never has a negative position, or position greater than the width of the board [DO IN ENVIRONMENT]
+# TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
 
 MAX_FORCE = 0.015
 

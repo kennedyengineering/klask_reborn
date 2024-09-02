@@ -124,7 +124,7 @@ class KlaskSimulator:
         self.magnet_bodies = None
         self.render_bodies = None
 
-    # TODO: Add option to initialize objects with position and velocity, maybe via config struct?
+    # TODO: Add option to initialize objects with position and velocity, maybe via config struct
     def reset(self, seed=None, ball_start_position="random"):
         # Validate ball start position
         assert ball_start_position in self.ball_start_positions
@@ -415,7 +415,6 @@ class KlaskSimulator:
             # Retrieve fixtures
             puck, biscuit = self.world.contactListener.collision_list.pop()
 
-            # TODO: Verify biscuit never has a negative position, or position greater than the width of the board
             # Compute new biscuit position
             position = biscuit.body.position - puck.body.position
 
@@ -657,7 +656,6 @@ class KlaskSimulator:
         # Apply forces to bodies
         biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
-    # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
     def __render_frame(self):
         # Determine if rendering enabled
         if self.render_mode is None:
