@@ -1,4 +1,5 @@
 # Klask game physical characteristics
+# 2024 Braedan Kennedy (kennedyengineering)
 
 # Weight is in KG
 # Distance is Meters

@@ -1,13 +1,19 @@
-from enum import unique, Enum
-from .constants import *
+# Klask Simulator
+# 2024 Braedan Kennedy (kennedyengineering)
 
 from Box2D.b2 import contactListener, world, edgeShape, pi
+from .constants import *
 from dataclasses import dataclass
-from random import choice
+from enum import unique, Enum
 from math import dist
 from PIL import Image
 
+import random
+
+# TODO: move to make vectorizable environment
 import pygame
+
+# TODO: remove pygame banner that appears
 
 
 class KlaskSimulator:
@@ -18,9 +24,15 @@ class KlaskSimulator:
 
     @unique
     class GameStates(Enum):
-        PLAYING = 0
-        P1_WIN = 1
-        P2_WIN = 2
+        PLAYING = 0  # Default state
+        P1_WIN = 1  # Player 1 wins point, terminal state
+        P1_SCORE = 2  # Player 1 scores goal, results in P1_WIN
+        P1_KLASK = 3  # Player 1 enters own goal, results in P2_WIN
+        P1_TWO_BISCUIT = 4  # Player 1 has contacted two biscuits, results in P2_WIN
+        P2_WIN = 5  # Player 2 wins point, terminal state
+        P2_SCORE = 6  # Player 2 scores goal, results in P2_WIN
+        P2_KLASK = 7  # Player 2 enters own goal, results in P1_WIN
+        P2_TWO_BISCUIT = 8  # Player 2 has contacted two biscuits, results in P1_WIN
 
     class KlaskContactListener(contactListener):
         def __init__(self):
@@ -55,25 +67,32 @@ class KlaskSimulator:
                 # Mark biscuit for deletion
                 self.collision_list.append((puck, biscuit))
 
+    ball_start_positions = [
+        "top_right",  # Place the ball in the top right corner at game start
+        "bottom_right",  # Place the ball in the bottom right corner at game start
+        "top_left",  # Place the ball in the top left corner at game start
+        "bottom_left",  # Place the ball in the bottom left corner at game start
+        "random",  # Place the ball in a random corner at game start
+    ]
+
+    render_modes = [
+        "human",  # "human" shows the rendered frame at the specified frame rate.
+        "human_unclocked",  # "human_unclocked" shows the rendered frame at an unbounded frame rate.
+        "rgb_array",  # "rgb_array" renders the frame, but does not show it.
+        None,  # (default) does not render or display frame.
+    ]
+
+    # FIXME: make length_scaler, pixels_per_meter, and target_fps non-configurable?
     def __init__(
         self,
-        render_mode="human",
+        render_mode=None,
         length_scaler=100,
         pixels_per_meter=20,
         target_fps=120,
     ):
         # Store user parameters
-        self.render_modes = [
-            "human",
-            "human_unclocked",
-            "frame",
-            "headless",
-        ]  # "human" shows the rendered frame at the specificed frame rate.
-        assert (
-            render_mode in self.render_modes
-        )  # "frame" renders frame, but does not display it.
-        self.render_mode = render_mode  # "headless" does not render frame.
-        # "human_unclocked" shows the rendered frame at an unspecified frame rate.
+        assert render_mode in self.render_modes
+        self.render_mode = render_mode
 
         self.length_scaler = length_scaler  # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter  # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
@@ -86,6 +105,9 @@ class KlaskSimulator:
             KG_BOARD_HEIGHT * self.pixels_per_meter * self.length_scaler
         )
 
+        # Internal state variables
+        self.is_initialized = False
+
         # PyGame variables
         self.screen = None
         self.clock = None
@@ -97,7 +119,15 @@ class KlaskSimulator:
         self.magnet_bodies = None
         self.render_bodies = None
 
-    def reset(self, ball_start_position="random"):
+    # TODO: Add option to initialize objects with position and velocity, maybe via config struct?
+    def reset(self, seed=None, ball_start_position="random"):
+        # Validate ball start position
+        assert ball_start_position in self.ball_start_positions
+
+        # Set random seed
+        if seed:
+            random.seed(seed)
+
         # Create world
         self.world = world(
             contactListener=self.KlaskContactListener(), gravity=(0, 0), doSleep=True
@@ -212,7 +242,7 @@ class KlaskSimulator:
             density=KG_PUCK_MASS / (pi * (KG_PUCK_RADIUS * self.length_scaler) ** 2),
         )
 
-        ball_start_positions = {
+        ball_start_positions_dict = {
             "top_right": (
                 KG_BOARD_WIDTH * self.length_scaler
                 - KG_CORNER_RADIUS * self.length_scaler / 2,
@@ -234,10 +264,12 @@ class KlaskSimulator:
                 KG_CORNER_RADIUS * self.length_scaler / 2,
             ),
         }
-        ball_start_positions["random"] = choice(list(ball_start_positions.values()))
+        ball_start_positions_dict["random"] = random.choice(
+            list(ball_start_positions_dict.values())
+        )
 
         self.bodies["ball"] = self.world.CreateDynamicBody(
-            position=ball_start_positions[ball_start_position], bullet=True
+            position=ball_start_positions_dict[ball_start_position], bullet=True
         )
         self.bodies["ball"].CreateCircleFixture(
             radius=KG_BALL_RADIUS * self.length_scaler,
@@ -330,6 +362,9 @@ class KlaskSimulator:
             maxForce=self.bodies["biscuit3"].mass * KG_GRAVITY,
         )
 
+        # Update internal state variable
+        self.is_initialized = True
+
         # Render frame
         frame = self.__render_frame()
 
@@ -343,6 +378,13 @@ class KlaskSimulator:
         return frame, game_states, agent_states
 
     def step(self, action1, action2):
+        # Check that reset() is called before step()
+        assert self.is_initialized
+
+        # Check action types
+        assert isinstance(action1, tuple)
+        assert isinstance(action2, tuple)
+
         # Apply forces to puck1
         self.bodies["puck1"].ApplyLinearImpulse(
             action1, self.bodies["puck1"].position, wake=True
@@ -358,18 +400,24 @@ class KlaskSimulator:
             self.__apply_magnet_force(self.bodies["puck1"], self.bodies[body_key])
             self.__apply_magnet_force(self.bodies["puck2"], self.bodies[body_key])
 
+        # FIXME: disassociate display time_step with physics time_step?
         # Step the physics simulation
-        self.world.Step(self.time_step, 10, 10)
+        velocity_iterations = 10
+        position_iterations = 10
+        self.world.Step(self.time_step, velocity_iterations, position_iterations)
 
         # Handle resultant puck to biscuit collisions
         while self.world.contactListener.collision_list:
             # Retrieve fixtures
             puck, biscuit = self.world.contactListener.collision_list.pop()
 
+            # TODO: Verify biscuit never has a negative position, or position greater than the width of the board
             # Compute new biscuit position
             position = biscuit.body.position - puck.body.position
-            position.Normalize()
-            position = position * (puck.shape.radius + biscuit.shape.radius)
+
+            # FIXME: results in a very small jump in position, but ensures the distance from puck to biscuit is always the same after collision
+            # position.Normalize()
+            # position = position * (puck.shape.radius + biscuit.shape.radius)
 
             # Create new biscuit fixture
             new_biscuit = puck.body.CreateCircleFixture(
@@ -470,6 +518,9 @@ class KlaskSimulator:
         ball_vel_x = self.bodies["ball"].linearVelocity.x
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
+        # TODO: return as dict? maybe not -- only tuples are hashable
+        # TODO: convert into pixel coordinates?
+        # TODO: document units, and coordinate frame
         # Create state vector
         state_vector = (
             biscuit1_pos_x,
@@ -505,19 +556,39 @@ class KlaskSimulator:
         states = []
 
         # Determine puck 1 win conditions
-        if (
-            self.__is_in_goal(self.bodies["puck2"])[1]
-            or self.__is_in_goal(self.bodies["ball"])[1]
-            or self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2
-        ):
+        if self.__is_in_goal(self.bodies["ball"])[1]:
+            states.append(self.GameStates.P1_SCORE)
+
+        if self.__is_in_goal(self.bodies["puck2"])[1]:
+            states.append(self.GameStates.P2_KLASK)
+
+        if self.__num_biscuits_on_puck(self.bodies["puck2"]) >= 2:
+            states.append(self.GameStates.P2_TWO_BISCUIT)
+
+        p1_win_states = {
+            self.GameStates.P1_SCORE,
+            self.GameStates.P2_KLASK,
+            self.GameStates.P2_TWO_BISCUIT,
+        }
+        if set.intersection(p1_win_states, states):
             states.append(self.GameStates.P1_WIN)
 
         # Determine puck 2 win conditions
-        if (
-            self.__is_in_goal(self.bodies["puck1"])[0]
-            or self.__is_in_goal(self.bodies["ball"])[0]
-            or self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2
-        ):
+        if self.__is_in_goal(self.bodies["ball"])[0]:
+            states.append(self.GameStates.P2_SCORE)
+
+        if self.__is_in_goal(self.bodies["puck1"])[0]:
+            states.append(self.GameStates.P1_KLASK)
+
+        if self.__num_biscuits_on_puck(self.bodies["puck1"]) >= 2:
+            states.append(self.GameStates.P1_TWO_BISCUIT)
+
+        p2_win_states = {
+            self.GameStates.P2_SCORE,
+            self.GameStates.P1_KLASK,
+            self.GameStates.P1_TWO_BISCUIT,
+        }
+        if set.intersection(p2_win_states, states):
             states.append(self.GameStates.P2_WIN)
 
         # Determine if win condition was met
@@ -579,9 +650,10 @@ class KlaskSimulator:
         # Apply forces to bodies
         biscuit_body.ApplyForceToCenter(force=force, wake=True)
 
+    # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
     def __render_frame(self):
-        # Determine if headless mode
-        if self.render_mode == "headless":
+        # Determine if rendering enabled
+        if self.render_mode is None:
             return None
 
         # Setup PyGame if needed
