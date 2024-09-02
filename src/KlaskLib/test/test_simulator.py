@@ -1,3 +1,6 @@
+# Klask Reborn
+# 2024 Braedan Kennedy (kennedyengineering)
+
 from ..simulator.simulator import KlaskSimulator
 
 

@@ -1,4 +1,5 @@
-# Demonstrates a method of input for human players
+# Klask Reborn
+# 2024 Braedan Kennedy (kennedyengineering)
 
 from KlaskLib.simulator.simulator import KlaskSimulator
 import contextlib

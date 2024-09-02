@@ -1,3 +1,6 @@
+# Klask Reborn
+# 2024 Braedan Kennedy (kennedyengineering)
+
 import gymnasium as gym
 import numpy as np
 import random

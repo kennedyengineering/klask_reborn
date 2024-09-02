@@ -1,4 +1,4 @@
-# Klask Simulator
+# Klask Reborn
 # 2024 Braedan Kennedy (kennedyengineering)
 
 from Box2D.b2 import contactListener, world, edgeShape, pi

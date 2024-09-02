@@ -1,3 +1,6 @@
+# Klask Reborn
+# 2024 Braedan Kennedy (kennedyengineering)
+
 from ..environment.environment import KlaskEnv
 
 from stable_baselines3.common.env_checker import check_env as sb3_check_env

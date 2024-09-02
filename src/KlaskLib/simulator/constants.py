@@ -1,4 +1,4 @@
-# Klask game physical characteristics
+# Klask Reborn
 # 2024 Braedan Kennedy (kennedyengineering)
 
 # Weight is in KG

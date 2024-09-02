@@ -1,3 +1,6 @@
+# Klask Reborn
+# 2024 Braedan Kennedy (kennedyengineering)
+
 from stable_baselines3.a2c import A2C
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 
