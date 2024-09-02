@@ -9,6 +9,8 @@ from ..simulator.simulator import KlaskSimulator
 
 # TODO: Verify biscuit never has a negative position, or position greater than the width of the board [DO IN ENVIRONMENT]
 # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
+# TODO: make render_data in metadata do something (connect to display_fps)
+# TODO: either use or remove options argument
 
 MAX_FORCE = 0.015
 
