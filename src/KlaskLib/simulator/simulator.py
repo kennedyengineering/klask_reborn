@@ -7,14 +7,9 @@ from dataclasses import dataclass
 from enum import unique, Enum
 from math import dist
 from PIL import Image
+from contextlib import redirect_stdout
 
 import random
-
-# TODO: move to make vectorizable environment
-import contextlib
-
-with contextlib.redirect_stdout(None):
-    import pygame
 
 
 class KlaskSimulator:
@@ -659,6 +654,11 @@ class KlaskSimulator:
         # Determine if rendering enabled
         if self.render_mode is None:
             return None
+
+        # Import PyGame
+        with redirect_stdout(None):
+            global pygame
+            import pygame
 
         # Setup PyGame if needed
         if self.screen is None and self.render_mode in ["human", "human_unclocked"]:
