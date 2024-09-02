@@ -11,6 +11,7 @@ from ..simulator.simulator import KlaskSimulator
 # TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
 # TODO: make render_data in metadata do something (connect to display_fps)
 # TODO: either use or remove options argument
+# TODO: allow for None type render mode, change output type?
 
 MAX_FORCE = 0.015
 
