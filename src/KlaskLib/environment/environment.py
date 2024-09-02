@@ -15,23 +15,27 @@ MAX_FORCE = 0.015
 
 
 class KlaskEnv(gym.Env):
-    """Custom Environment that follows gym interface."""
+    """Custom environment that follows Gymnasium interface."""
 
-    metadata = {"render_modes": ["human", "human_unclocked", "frame"], "render_fps": 30}
+    metadata = {
+        "render_modes": ["human", "human_unclocked", "rgb_array"],
+        "render_fps": 120,
+    }
 
-    def __init__(self, render_mode="frame"):
+    def __init__(self, render_mode="rgb_array"):
         super().__init__()
 
-        # Using continuous actions:
+        # Using continuous actions
         self.action_space = spaces.Box(
             low=np.array([-1.0, -1.0]), high=np.array([1.0, 1.0]), dtype=np.float32
         )
 
-        # Using image as input (channel-first; channel-last also works):
+        # Using image as input (channel-first; channel-last also works)
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(3, 609, 787), dtype=np.uint8
         )
 
+        # Initialize simulator
         assert render_mode in self.metadata["render_modes"]
         self.sim = KlaskSimulator(render_mode=render_mode)
 
