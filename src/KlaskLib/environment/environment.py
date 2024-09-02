@@ -44,6 +44,8 @@ class KlaskEnv(gym.Env):
         frame, game_states, agent_states = self.sim.step(
             (action[0] * MAX_FORCE, action[1] * MAX_FORCE), (0.0, 0.0)
         )
+
+        # Process observation
         observation = np.moveaxis(frame, -1, 0)
 
         # Compute the reward
@@ -70,7 +72,10 @@ class KlaskEnv(gym.Env):
 
         # Reset simulator
         frame, game_states, agent_states = self.sim.reset(seed=seed)
+
+        # Process observation
         observation = np.moveaxis(frame, -1, 0)
 
+        # Return
         info = {}
         return observation, info
