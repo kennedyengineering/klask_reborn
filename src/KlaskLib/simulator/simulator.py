@@ -83,13 +83,15 @@ class KlaskSimulator:
         None,  # (default) does not render or display frame.
     ]
 
-    # FIXME: make length_scaler, pixels_per_meter, and target_fps non-configurable?
     def __init__(
         self,
         render_mode=None,
         length_scaler=100,
         pixels_per_meter=20,
-        target_fps=120,
+        display_fps=120,
+        simulation_fps=120,
+        velocity_iterations=10,
+        position_iterations=10,
     ):
         # Store user parameters
         assert render_mode in self.render_modes
@@ -97,10 +99,12 @@ class KlaskSimulator:
 
         self.length_scaler = length_scaler  # Box2D doesn't simulate small objects well. Scale klask_constants length values into the meter range.
         self.pixels_per_meter = pixels_per_meter  # Box2D uses 1 pixel / 1 meter by default. Change for better viewing.
-        self.target_fps = target_fps
+        self.display_fps = display_fps
+        self.velocity_iterations = velocity_iterations
+        self.position_iterations = position_iterations
 
         # Compute additional parameters
-        self.time_step = 1.0 / self.target_fps
+        self.time_step = 1.0 / simulation_fps
         self.screen_width = KG_BOARD_WIDTH * self.pixels_per_meter * self.length_scaler
         self.screen_height = (
             KG_BOARD_HEIGHT * self.pixels_per_meter * self.length_scaler
@@ -401,11 +405,10 @@ class KlaskSimulator:
             self.__apply_magnet_force(self.bodies["puck1"], self.bodies[body_key])
             self.__apply_magnet_force(self.bodies["puck2"], self.bodies[body_key])
 
-        # FIXME: disassociate display time_step with physics time_step?
         # Step the physics simulation
-        velocity_iterations = 10
-        position_iterations = 10
-        self.world.Step(self.time_step, velocity_iterations, position_iterations)
+        self.world.Step(
+            self.time_step, self.velocity_iterations, self.position_iterations
+        )
 
         # Handle resultant puck to biscuit collisions
         while self.world.contactListener.collision_list:
@@ -693,7 +696,7 @@ class KlaskSimulator:
 
             # Manage frame rate
             if self.render_mode == "human":
-                self.clock.tick(self.target_fps)
+                self.clock.tick(self.display_fps)
 
         # Return rendered frame as numpy array (RGB order)
         return pygame.surfarray.array3d(surface).swapaxes(0, 1)
