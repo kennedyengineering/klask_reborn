@@ -3,7 +3,6 @@
 
 import gymnasium as gym
 import numpy as np
-import random
 from gymnasium import spaces
 
 from ..simulator.simulator import KlaskSimulator
@@ -67,12 +66,10 @@ class KlaskEnv(gym.Env):
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
-        # Set random seed used in simulator
-        if seed:
-            random.seed(seed)
+        super().reset(seed=seed)
 
         # Reset simulator
-        frame, game_states, agent_states = self.sim.reset()
+        frame, game_states, agent_states = self.sim.reset(seed=seed)
         observation = np.moveaxis(frame, -1, 0)
 
         info = {}
