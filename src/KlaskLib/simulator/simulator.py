@@ -519,7 +519,6 @@ class KlaskSimulator:
         ball_vel_x = self.bodies["ball"].linearVelocity.x
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
-        # TODO: convert into pixel coordinates?
         # TODO: document units, and coordinate frame
         # Create state dict
         state_dict = {
@@ -548,6 +547,12 @@ class KlaskSimulator:
             "ball_vel_x": ball_vel_x,
             "ball_vel_y": ball_vel_y,
         }
+
+        # Convert to pixel coordinates
+        process_state = lambda x: x * self.pixels_per_meter
+        state_dict.update(
+            (key, process_state(value)) for key, value in state_dict.items()
+        )
 
         return state_dict
 
