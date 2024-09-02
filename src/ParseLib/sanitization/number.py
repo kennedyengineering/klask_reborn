@@ -1,7 +1,4 @@
 from argparse import ArgumentTypeError
-from os import path
-
-# TODO: add ParseLib, filsystem.py and number.py files to organize checks. Add tests. Make package.
 
 
 def check_positive_int(value):
@@ -52,25 +49,3 @@ def check_restricted_float(value):
         )
 
     return fvalue
-
-
-def check_directory(value):
-    """
-    Ensure path is a valid directory
-    """
-
-    if not path.isdir(value):
-        raise ArgumentTypeError("Expected directory, got %s" % (value))
-
-    return value
-
-
-def check_file(value):
-    """
-    Ensure path is a valid file
-    """
-
-    if not path.isfile(value):
-        raise ArgumentTypeError("Expected file, got %s" % (value))
-
-    return value

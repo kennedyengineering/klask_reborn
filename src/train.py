@@ -7,7 +7,8 @@ from stable_baselines3.common.vec_env import SubprocVecEnv, VecMonitor
 from gymnasium.wrappers.time_limit import TimeLimit
 
 from KlaskLib.environment.environment import KlaskEnv
-from parser_utils import check_directory, check_positive_int
+from ParseLib.sanitization.filesystem import check_directory
+from ParseLib.sanitization.number import check_positive_int
 
 import argparse
 import datetime
