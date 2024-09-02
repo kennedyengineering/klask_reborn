@@ -124,7 +124,6 @@ class KlaskSimulator:
         self.magnet_bodies = None
         self.render_bodies = None
 
-    # TODO: Add option to initialize objects with position and velocity, maybe via config struct
     def reset(self, seed=None, ball_start_position="random"):
         # Validate ball start position
         assert ball_start_position in self.ball_start_positions
