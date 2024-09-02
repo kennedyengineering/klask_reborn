@@ -519,7 +519,6 @@ class KlaskSimulator:
         ball_vel_x = self.bodies["ball"].linearVelocity.x
         ball_vel_y = self.bodies["ball"].linearVelocity.y
 
-        # TODO: document units, and coordinate frame
         # Create state dict
         state_dict = {
             "biscuit1_pos_x": biscuit1_pos_x,
