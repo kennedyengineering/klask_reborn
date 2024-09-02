@@ -11,9 +11,10 @@ from PIL import Image
 import random
 
 # TODO: move to make vectorizable environment
-import pygame
+import contextlib
 
-# TODO: remove pygame banner that appears
+with contextlib.redirect_stdout(None):
+    import pygame
 
 
 class KlaskSimulator:
