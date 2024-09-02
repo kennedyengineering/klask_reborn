@@ -1,8 +1,10 @@
 # Demonstrates a method of input for human players
 
 from KlaskLib.simulator.simulator import KlaskSimulator
+import contextlib
 
-import pygame
+with contextlib.redirect_stdout(None):
+    import pygame
 
 
 class KeyboardController:
