@@ -7,16 +7,23 @@ from gymnasium import spaces
 
 from ..simulator.simulator import KlaskSimulator
 
-# TODO: Verify biscuit never has a negative position, or position greater than the width of the board [DO IN ENVIRONMENT]
-# TODO: zero-pad output frame to make dimensions even [DO IN ENVIRONMENT]
-# TODO: make render_data in metadata do something (connect to display_fps)
-# TODO: either use or remove options argument
+# TODO: Verify biscuit never has a negative position, or position greater than the width of the board
+# TODO: zero-pad output frame to make dimensions even
+# TODO: make render_fps in metadata do something (connect to display_fps)
+# TODO: either use or remove options argument (maybe have it contain ball_start_position, or render options?)
 # TODO: allow for None type render mode, change output type?
+# TODO: add option for rich & simple render mode (simple: no logo or extra lines)
+# TODO: normalize MLP agent_states [0-1]
+# TODO: get anti-aliased rendering from PyGame
+# TODO: make reward function its own method, seperate file (takes game_states and agent_states as input)
+# TODO: add self-play somehow
 
+# TODO: move the constants file, or make env parameter
 MAX_FORCE = 0.015
 
 
 class KlaskEnv(gym.Env):
+    # TODO: redo banner
     """Custom environment that follows Gymnasium interface."""
 
     metadata = {
@@ -63,9 +70,11 @@ class KlaskEnv(gym.Env):
             # Reward for staying alive
             reward += 0.1
 
+        # FIXME: check if this is correct
         # Check if episode is done
         terminated = truncated = not KlaskSimulator.GameStates.PLAYING in game_states
 
+        # TODO: utilize info dict
         # Return
         info = {}
         return observation, reward, terminated, truncated, info
@@ -79,6 +88,7 @@ class KlaskEnv(gym.Env):
         # Process observation
         observation = np.moveaxis(frame, -1, 0)
 
+        # TODO: utilize info dict
         # Return
         info = {}
         return observation, info

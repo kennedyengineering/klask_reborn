@@ -14,6 +14,13 @@ import argparse
 import datetime
 import os
 
+# TODO: switch from subprocenv to dummyvecenv
+# FIXME: issue with subprocenv crashing
+# FIXME: issue with dummyvecenvs using the same display
+# TODO: get all sub-envs to display to one window -- each env consists of a tile on a large frame
+# TODO: add frame stacking
+# TODO: add grayscale frame
+
 
 def make_env(render_mode=None, time_limit=None):
     def _init():
