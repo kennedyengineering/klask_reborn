@@ -17,6 +17,7 @@ from ..simulator.simulator import KlaskSimulator
 # TODO: get anti-aliased rendering from PyGame
 # TODO: make reward function its own method, seperate file (takes game_states and agent_states as input)
 # TODO: add self-play via callback (figure out where to put callbacks, not in this file, just include methods to initialize and update opponents here)
+# TODO: add model evaluation and checkpoint saving callback
 
 # TODO: move the constants file, or make env parameter
 MAX_FORCE = 0.015
