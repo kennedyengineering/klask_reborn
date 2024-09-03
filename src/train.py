@@ -20,6 +20,7 @@ import os
 # TODO: get all sub-envs to display to one window -- each env consists of a tile on a large frame
 # TODO: add frame stacking
 # TODO: add grayscale frame
+# TODO: add frame skipping
 
 
 def make_env(render_mode=None, time_limit=None):
@@ -42,13 +43,14 @@ def main():
     parser.add_argument("--runs-directory", type=check_directory, default="runs/")
     parser.add_argument("--weights-directory", type=check_directory, default="weights/")
     # Environment parameters
-    parser.add_argument("--envs", type=check_positive_int, default=5)
     parser.add_argument(
         "--render-mode",
         type=str,
         choices=KlaskEnv.metadata["render_modes"],
         default="rgb_array",
     )
+    # Environment wrappers
+    parser.add_argument("--envs", type=check_positive_int, default=5)
     parser.add_argument("--time-limit", type=check_positive_int, default=1000)
     # Training parameters
     parser.add_argument("--timesteps", type=check_positive_int, default=100_000)
