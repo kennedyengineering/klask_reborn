@@ -18,6 +18,8 @@ from ..simulator.simulator import KlaskSimulator
 # TODO: make reward function its own method, seperate file (takes game_states and agent_states as input)
 # TODO: add self-play via callback (figure out where to put callbacks, not in this file, just include methods to initialize and update opponents here)
 # TODO: add model evaluation and checkpoint saving callback
+# TODO: add option to set ball position, apply impulse instead of set velocity
+# TODO: add option to remove biscuits
 
 # TODO: move the constants file, or make env parameter
 MAX_FORCE = 0.015
